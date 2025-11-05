@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
+    "target" : "ES2023",
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "svgo.config.ts"  ],
   "exclude": ["node_modules"]
 }
