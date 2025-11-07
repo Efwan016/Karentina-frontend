@@ -1,6 +1,7 @@
+"use client";
+import { useRouter } from "next/navigation";
 import useQueryParams from "@/libs/useQueryParams";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { ReactNode, useLayoutEffect } from "react";
 
 export type TModalRegistered = "tier" | "filter-category"
