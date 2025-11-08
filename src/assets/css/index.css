@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+
+@layer utilities {
+  .text-color1 { color: #F97316; }
+  .text-color2 { color: #4722f5; }
+  .text-color3 { color: #0EA52F; }
+  .text-color4 { color: #08041A }
+  .text-color4 { color: #FFBF32; }
+  .text-gray1 { color: #D1D0D5; }
+  .text-gray2 { color: #6C6D6F; }
+  .text-gray3 { color: #F4F5F7; }
+  .text-gray4 { color: #B9BBBE; }
+}
+
+
+html, body {
+  background-color: white;
+  color: #0f0f0f;
+  font-family: var(--font-poppins), sans-serif;
+}

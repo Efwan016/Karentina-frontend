@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "svgo.config.ts"  ],
+, "svgo.config.ts", "tailwind.config.ts"  ],
   "exclude": ["node_modules"]
 }
