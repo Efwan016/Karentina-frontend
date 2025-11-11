@@ -6,5 +6,5 @@ export type TCategory = {
             "deleted_at": null | string,
             "created_at": string,
             "updated_at": string,
-            "catering_packages" [];
+            "catering_packages": [];
 }

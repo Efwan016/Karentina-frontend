@@ -1,5 +1,6 @@
 export default function People() {
-    <svg
+  return (
+     <svg
                           width="24"
                           height="24"
                           viewBox="0 0 24 24"
@@ -25,4 +26,7 @@ export default function People() {
                             className="fill-current"
                           />
                         </svg>
+
+  )
+   
 }

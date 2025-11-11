@@ -1,6 +1,6 @@
 export async function getPackages() {
   try {
-    const res = await fetch(`${process.env.HOST_API}/api/catering-packages`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_HOST_API}/api/catering-packages`, {
       method: "GET",
       cache: "no-cache",
     });

@@ -1,4 +1,7 @@
-import { TCategory } from "../categories/type"
+import { TCategory } from "@/components/categories/type"
+import { TKitchen } from "@/components/kitchen/type";
+import { TCity } from "@/components/tiers/type";
+import { TTiers } from "@/components/tiers/type";
 
 export type Tshow = "popular" | "newest"
 
@@ -9,9 +12,10 @@ export type TPackage = {
             "is_popular": 0 | 1,
             "thumbnail": string;
             "about": string;
-            "city": [],
-            "category": TCategory,
-            "tiers": [];
+            "city": TCity;
+            "category": TCategory;
+            "kitchen": TKitchen;
+            "tiers": TTiers[];
                 }
             
     
