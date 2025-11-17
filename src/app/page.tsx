@@ -4,6 +4,7 @@ import LogoKaterina from "@/assets/icons/LogoKaterina";
 import Slider from "@/components/Slider";
 import Categories from "@/components/categories";
 import Packages from "@/components/packages"; 
+import Testimonials from "@/components/testimonial";
 
 
 type SlideItemProps = {
@@ -50,7 +51,7 @@ export default function Home() {
       <header className="flex items-center justify-between px-4">
         <div className="flex items-center gap-x-2">
           <LogoKaterina />
-          <span className="font-bold text-2xl">Katerina</span>
+          <span className="font-bold text-2xl">Adzani</span>
         </div>
 
         <button className="flex items-center gap-x-2 border border-gray1 rounded-full py-1 px-2">
@@ -80,6 +81,13 @@ export default function Home() {
         <h2 className="font-semibold mb-4 px-4">Most People Love It</h2>
         <Packages show="popular" />
       </section>
+
+      {/* TESTIMONIALS SECTION */}
+      <section className="relative">
+        <h2 className="font-semibold mb-4 px-4">People Love It</h2>
+        <Testimonials />
+      </section>
+
 
       {/* NEWEST SECTION */}
       <section className="relative">
