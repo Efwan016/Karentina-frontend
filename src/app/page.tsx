@@ -3,8 +3,9 @@ import FlagIdn from "@/assets/icons/FlagIdn";
 import LogoKaterina from "@/assets/icons/LogoKaterina";
 import Slider from "@/components/Slider";
 import Categories from "@/components/categories";
-import Packages from "@/components/packages"; 
+import Packages from "@/components/packages";
 import Testimonials from "@/components/testimonial";
+import BottomBar from "@/components/bottomBar";
 
 
 type SlideItemProps = {
@@ -48,13 +49,13 @@ export default function Home() {
   return (
     <>
       {/* HEADER */}
-      <header className="flex items-center justify-between px-4">
+      <header className="mt-2 flex items-center justify-between px-3 py-4 bg-amber-600 shadow-lg rounded-3xl backdrop-blur-md border border-gray-100">
         <div className="flex items-center gap-x-2">
           <LogoKaterina />
           <span className="font-bold text-2xl">Adzani</span>
         </div>
 
-        <button className="flex items-center gap-x-2 border border-gray1 rounded-full py-1 px-2">
+        <button className="flex items-center gap-x-2 border border-gray-900 rounded-full py-1 px-2">
           <FlagIdn />
           <span>IDN</span>
         </button>
@@ -74,7 +75,7 @@ export default function Home() {
       </section>
 
       {/* CATEGORIES */}
-      <Categories title="Browse Categories" /> 
+      <Categories title="Browse Categories" />
 
       {/* POPULAR SECTION */}
       <section className="relative">
@@ -94,6 +95,12 @@ export default function Home() {
         <h2 className="font-semibold mb-4 px-4">Fresh From Kitchen</h2>
         <Packages show="newest" />
       </section>
+
+      {/* BOTTOM BAR SECTION */}
+
+      <BottomBar />
+
+
     </>
   );
 }
