@@ -9,8 +9,11 @@ const nextConfig: NextConfig = {
         hostname: "192.168.1.8",
         port: "8000",
         pathname: "/**",
-      }
-    ]
+      },
+    ],
+    unoptimized: true,
+     
+
   },
 
   webpack(config) {

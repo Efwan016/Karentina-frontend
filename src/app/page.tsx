@@ -49,17 +49,44 @@ export default function Home() {
   return (
     <>
       {/* HEADER */}
-      <header className="mt-2 flex items-center justify-between px-3 py-4 bg-amber-600 shadow-lg rounded-3xl backdrop-blur-md border border-gray-100">
-        <div className="flex items-center gap-x-2">
+      <header
+        className="
+          top-2 z-50
+          flex items-center justify-between
+          px-4 py-3
+          bg-amber-600/90
+          shadow-[0_4px_20px_rgba(0,0,0,0.15)]
+          rounded-2xl
+          backdrop-blur-md
+          border border-amber-200/30
+        "
+      >
+        {/* Left Section */}
+        <div className="flex items-center gap-x-3">
           <LogoKaterina />
-          <span className="font-bold text-2xl">Adzani</span>
+          <span className="font-semibold text-xl tracking-wide text-white drop-shadow">
+            Adzani
+          </span>
         </div>
 
-        <button className="flex items-center gap-x-2 border border-gray-900 rounded-full py-1 px-2">
+        {/* Language Button */}
+        <button
+          className="
+          flex items-center gap-x-2
+          bg-white/20
+          border border-white/30
+          rounded-full
+          py-1.5 px-3
+          text-white
+          backdrop-blur-lg
+          hover:bg-white/30 transition
+        "
+        >
           <FlagIdn />
-          <span>IDN</span>
+          <span className="text-sm font-medium">IDN</span>
         </button>
       </header>
+
 
       {/* SLIDER SECTION */}
       <section className="relative">
