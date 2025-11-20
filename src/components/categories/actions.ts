@@ -1,3 +1,5 @@
+import { redirect } from "next/dist/server/api-utils";
+
 export async function getAllCategories() {
   try {
     const res = await fetch(`${process.env.HOST_API}/api/categories`, {
@@ -36,3 +38,23 @@ export async function getCategoryDetails(categorySlug: string) {
   }
 }
 
+export async function navigateFilterCategories(prevState: any, formData: FormData) {
+  const category = formData.get("category")
+  const city = formData.get("city")
+
+  if(category == ""){
+    return {
+      message: "Category Not Found",
+      field: "category"
+    }
+  }
+
+  if(city == ""){
+    return {
+      message: "City Not Found",
+      field: "city"
+    };
+  }
+
+  return redirect(`/categories/${category}?citySlug=${city}`);
+}
