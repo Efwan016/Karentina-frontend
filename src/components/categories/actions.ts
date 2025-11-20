@@ -1,4 +1,4 @@
-import { redirect } from "next/dist/server/api-utils";
+import { redirect } from "next/navigation";
 
 export async function getAllCategories() {
   try {
@@ -38,7 +38,7 @@ export async function getCategoryDetails(categorySlug: string) {
   }
 }
 
-export async function navigateFilterCategories(prevState: any, formData: FormData) {
+export async function navigateFilterCategories(prevState: unknown, formData: FormData) {
   const category = formData.get("category")
   const city = formData.get("city")
 

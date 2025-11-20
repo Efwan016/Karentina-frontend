@@ -35,18 +35,30 @@ export default async function Page(props: Request) {
         <>
             <div
                 className={[
-                    "fixed inset-0 z-50 bg-black flex justify-center",
+                    "fixed inset-0 z-50 flex justify-center",
                     modalPosition,
                 ].join(" ")}
             >
-                <div className={modalWrapper}>
-                    {
-                        searchParams.modal === "filter-category" &&
-                        <ModalFilterCategories categorySlug={searchParams.categorySlug} />
-                    }
+                {/* BACKDROP */}
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn"></div>
+
+                {/* MODAL */}
+                <div
+                    className={[
+                        modalWrapper,
+                        "w-full max-w-md mx-auto animate-slideUp relative",
+                        "p-6 sm:p-8", 
+                        "shadow-xl rounded-2xl",
+                    ].join(" ")}
+                >
+                    {searchParams.modal === "filter-category" && (
+                        <ModalFilterCategories
+                            categorySlug={searchParams.category ?? ""}
+                        />
+                    )}
                 </div>
 
-                <RouterBack />
+                <RouterBack className="z-40 absolute backdrop-blur-sm animate-fadeIn cursor-pointer" />
             </div>
 
             <PreventScrolling />

@@ -6,18 +6,20 @@ import { getAllCities } from '@/components/cities/actions'
 import FormFilterCategories from './Form'
 
 type Props = {
-    categorySlug: string
+  categorySlug: string
 }
 
-async function ModalFilterCategories({categorySlug}: Props) {
-  const { data : categories }: {data: TCategory[]} = await getAllCategories();
-  const { data: cities }: {data: TCity[]} = await getAllCities();
-    return (
+async function ModalFilterCategories({ categorySlug }: Props) {
+  const { data: categories }: { data: TCategory[] } = await getAllCategories();
+  const { data: cities }: { data: TCity[] } = await getAllCities();
+  return (
     <FormFilterCategories
-     categories={categories}
-     cities={cities}
-     categorySlug={categorySlug}
-     />
+      categories={categories}
+      cities={cities}
+      categorySlug={categorySlug}
+      citySlug=""
+    />
+
   );
 }
 
