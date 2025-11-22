@@ -10,39 +10,37 @@ import "@/libs/thousands";
 
 import { ContentNewest, ContentPopular } from "@/components/packages";
 import { OpenModal } from "@/components/Modal";
+import { getFilteredPackagesByCityAndCategory } from "@/components/packages/actions";
+import { TPackage } from "@/components/packages/type";
 
 type Request = {
   params: {
     categorySlug: string;
   };
+  searchParams: {
+    citySlug?: string;
+  };
 };
 
-
-export default async function PageCategoryDetails({ params }: Request) {
+export default async function PageCategoryDetails({
+  params,
+  searchParams,
+}: Request) {
   const { categorySlug } = await params;
 
-  const result = await getCategoryDetails(categorySlug);
+  const categories: { data: TCategory } = await getCategoryDetails(categorySlug);
 
-  if (!result?.data) {
-    return (
-      <div className="p-4 text-center">
-        <h1 className="text-lg font-semibold">Category Not Found</h1>
-      </div>
-    );
+  let catering_packages = categories.data.catering_packages;
+
+  if (searchParams.citySlug && searchParams.citySlug !== "") {
+    const filtered: { data: TPackage[] } =
+      await getFilteredPackagesByCityAndCategory(
+        searchParams.citySlug,
+        params.categorySlug
+      );
+
+    catering_packages = filtered.data;
   }
-
-  const data: TCategory = result.data;
-
-  const {
-    name,
-    photo,
-    catering_packages_count,
-    catering_packages = [],
-  } = data;
-
-  const popularPackages = catering_packages.filter(
-    (item) => item.is_popular === 1
-  );
 
   return (
     <>
@@ -53,26 +51,25 @@ export default async function PageCategoryDetails({ params }: Request) {
           <div className="flex items-center gap-x-3">
             <figure className="relative w-[100px] h-[120px] rounded-2xl overflow-hidden">
               <Image
-                src={`${process.env.HOST_API}/storage/${photo}`}
-                alt={name}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover object-center"
+                src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${categories.data.photo}`}
+                alt={categories.data.name}
                 fill
                 priority
                 unoptimized
+                className="object-cover object-center"
               />
             </figure>
 
             <div className="flex flex-col gap-y-3">
-              <span className="font-semibold">{name}</span>
+              <span className="font-semibold">{categories.data.name}</span>
 
               <div className="flex gap-x-1">
                 <span className="text-blue-700">
                   <People />
                 </span>
                 <span className="text-gray2">
-                  {catering_packages_count.thousands()}{" "}
-                  Package{catering_packages_count > 1 ? "s" : ""}
+                  {catering_packages.length.thousands()}{" "}
+                  {`Package${catering_packages.length > 1 ? "s" : ""}`}
                 </span>
               </div>
             </div>
@@ -82,7 +79,9 @@ export default async function PageCategoryDetails({ params }: Request) {
 
       <section className="relative">
         <h2 className="font-semibold mb-4 px-4">Most People Love It</h2>
-        <ContentPopular data={popularPackages} />
+        <ContentPopular
+          data={catering_packages.filter((item) => item.is_popular)}
+        />
       </section>
 
       <section className="relative">
@@ -103,3 +102,4 @@ export default async function PageCategoryDetails({ params }: Request) {
     </>
   );
 }
+
