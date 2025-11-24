@@ -20,6 +20,28 @@ export async function getPackages() {
   }
 }
 
+export async function getPackageDetails(packageSlug : string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_HOST_API}/api/catering-package/${packageSlug}`,
+      {
+        method: "GET",
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed: ${res.statusText}`);
+    }
+
+    return await res.json(); 
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+
+    return { data: [] };
+  }
+}
+
 
 export async function getFilteredPackagesByCityAndCategory(
   citySlug: string,
@@ -34,6 +56,10 @@ export async function getFilteredPackagesByCityAndCategory(
       }
     );
 
+    if (res.status === 404) {
+      return { data: [] };
+    }
+
     if (!res.ok) {
       throw new Error(`Failed: ${res.statusText}`);
     }
@@ -41,7 +67,7 @@ export async function getFilteredPackagesByCityAndCategory(
     return await res.json();
   } catch (error) {
     console.error("Error filtering packages:", error);
-
     return { data: [] };
   }
 }
+

@@ -12,6 +12,7 @@ import { ContentNewest, ContentPopular } from "@/components/packages";
 import { OpenModal } from "@/components/Modal";
 import { getFilteredPackagesByCityAndCategory } from "@/components/packages/actions";
 import { TPackage } from "@/components/packages/type";
+import { Metadata, ResolvingMetadata } from "next";
 
 type Request = {
   params: {
@@ -20,23 +21,46 @@ type Request = {
   searchParams: {
     citySlug?: string;
   };
-};
+}; 
 
-export default async function PageCategoryDetails({
-  params,
-  searchParams,
-}: Request) {
-  const { categorySlug } = await params;
+export async function generateMetadata(
+  { params }: Request,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const resolvedParams = await params;
+  const { categorySlug } = resolvedParams;
+
+  const categories: { data: TCategory } | null =
+    await getCategoryDetails(categorySlug);
+
+  const previous = await parent;
+
+  if (!categories?.data) {
+    return {
+      title: `Category Not Found | ${previous.title ?? "App"}`,
+    };
+  }
+
+  return {
+    title: `${categories.data.name} — Category | ${previous.title ?? "App"}`,
+    description: `Explore ${categories.data.name} catering packages.`,
+  };
+}
+
+
+export default async function PageCategoryDetails({ params, searchParams }: Request) {
+  const { categorySlug } = await params; 
+  const { citySlug } = await searchParams;
 
   const categories: { data: TCategory } = await getCategoryDetails(categorySlug);
 
-  let catering_packages = categories.data.catering_packages;
+  let catering_packages = categories?.data?.catering_packages ?? [];
 
-  if (searchParams.citySlug && searchParams.citySlug !== "") {
+  if (citySlug) {
     const filtered: { data: TPackage[] } =
       await getFilteredPackagesByCityAndCategory(
-        searchParams.citySlug,
-        params.categorySlug
+        citySlug,
+        categorySlug
       );
 
     catering_packages = filtered.data;
