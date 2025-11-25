@@ -1,10 +1,14 @@
 {
-    "cSpell.words": [
-        "Adzani",
-        "kategori",
-        "Katerina",
-        "Potongan",
-        "Tidak",
-        "Tshow"
-    ]
+  "tailwindCSS.lint.invalidApply": "ignore",
+  "tailwindCSS.lint.unknownAtRules": "ignore",
+  "tailwindCSS.lint.cssConflict": "ignore",
+
+  "cSpell.words": [
+    "Adzani",
+    "kategori",
+    "Katerina",
+    "Potongan",
+    "Tidak",
+    "Tshow"
+  ]
 }

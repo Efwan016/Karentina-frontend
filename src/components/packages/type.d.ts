@@ -17,5 +17,18 @@ export type TPackage = {
             "kitchen": TKitchen;
             "tiers": TTiers[];
                 }
-            
+
+export type TPackageDetails = {
+    photos: {
+        "id": number,
+        "photo": string;
+        "catering_package_id": number,
+        "deleted_at": null | string;
+        "created_at": string;
+        "updated_at": string
+    }[];
+    bonuses: []
+    testimonials: []
+    tiers: []
+} & TPackage
     

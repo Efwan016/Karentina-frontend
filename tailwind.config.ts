@@ -14,15 +14,17 @@ const colors = {
 
 const config: Config = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx,svg}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",   
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}", 
+    "./src/assets/css/**/*.{css}", 
   ],
+
   theme: {
     extend: {
       colors,
       fill: colors,
       fontFamily: {
-        sans: ["'Poppins', sans-serif"],
+        sans: ["Poppins", "sans-serif"], 
       },
     },
   },
