@@ -4,12 +4,21 @@ import { Metadata, ResolvingMetadata } from "next";
 import ComposeHeader from "./ComposeHeader";
 import Image from "next/image";
 import Slider from "@/components/Slider";
+import Notes from "@/assets/icons/Notes";
+import People from "@/assets/icons/People";
+import StarClashy from "@/assets/icons/Star-clashy";
 
 type Request = {
     params: {
         packageSlug: string;
     };
 };
+
+export type TTier = {
+    price: number;
+    quantity: number;
+};
+
 
 {/*Generate Metadata*/ }
 export async function generateMetadata(
@@ -53,10 +62,18 @@ export default async function PackageDetailsPage({ params }: Request) {
 
     const pkg = cateringPackage.data;
 
+    const currentTier = pkg.tiers.length
+        ? pkg.tiers.reduce((min: TTier, curr: TTier) =>
+            curr.price < min.price ? curr : min,
+            pkg.tiers[0]
+        )
+        : null;
+
     return (
         <>
             <ComposeHeader />
 
+            {/* Hero / Slider */}
             <section className="relative">
                 <Slider
                     spaceBetween={20}
@@ -77,11 +94,55 @@ export default async function PackageDetailsPage({ params }: Request) {
                         </figure>
                     ))}
                 </Slider>
+
+                {/* Floating Card */}
+                <div
+                    className="left-2 bottom-2 right-2 flex flex-col bg-white rounded-2xl p-3">
+                    {/* Title & Info */}
+                    <span className="font-semibold">{pkg.name}</span>
+                        <span className="flex gap-x-3">
+                            <span className="flex gap-x-1">
+                                <span className="text-blue-600">
+                                    <Notes />
+                                </span>
+                                <span className="text-gray-500">{pkg.category?.name}</span>
+                            </span>
+
+                            <span className="flex items-center gap-x-1">
+                                <span className="text-blue-600">
+                                    <People />
+                                </span>
+                                {currentTier?.quantity || 0} pax
+                            </span>
+                        </span>
+                    
+
+                    {/* Rating Badge */}
+                    <span
+                        className="
+                    flex flex-col items-center justify-center gap-y-1
+                    px-4 py-2 rounded-2xl
+                    bg-amber-600
+                    text-white shadow-lg shadow-amber-600/20
+                "
+                    >
+                        <StarClashy />
+                        <span className="font-medium text-sm">4.5/5</span>
+                    </span>
+                </div>
             </section>
-            <section className="relative">
-                <h1 className="font-bold text-xl">{pkg.name}</h1>
-                <p className="mt-2 text-gray-600">{pkg.about}</p>
+
+            {/* About Section */}
+            <section className="relative z-10 mt-24 px-4">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2 tracking-tight">
+                    About Package
+                </h2>
+
+                <p className="text-gray-600 leading-relaxed">
+                    {pkg.about}
+                </p>
             </section>
         </>
+
     );
 }

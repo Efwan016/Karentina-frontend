@@ -110,7 +110,7 @@ export function ContentNewest({
         );
 
         return (
-          <div key={item.id} className="flex gap-x-3">
+          <div key={item.id} className="flex relative gap-x-3">
             <figure className="w-[120px] h-40 flex-none rounded-2xl overflow-hidden relative">
               <Image
                 src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${item.thumbnail}`}
@@ -144,6 +144,7 @@ export function ContentNewest({
                 <span className="text-gray2">{item.city?.name}</span>
               </div>
             </div>
+            <Link href={`/packages/${item.slug}`} className="absolute inset-0" />
           </div>
         );
       })}
