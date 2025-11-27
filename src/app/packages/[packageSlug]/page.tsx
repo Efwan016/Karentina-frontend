@@ -10,6 +10,8 @@ import StarClashy from "@/assets/icons/Star-clashy";
 import { ContentBonus } from "@/components/bonuses";
 import PinPoint from "@/assets/icons/PinPoint";
 import Truck from "@/assets/icons/Truck";
+import { ContentTestimonial } from "@/components/testimonial";
+import BadgeCheckmark from "@/assets/icons/badge-checkmark";
 
 type Request = {
     params: {
@@ -100,7 +102,12 @@ export default async function PackageDetailsPage({ params }: Request) {
 
                 {/* Floating Card */}
                 <div
-                    className="left-2 bottom-2 right-2 flex flex-col bg-white rounded-2xl p-3">
+                    className="
+            absolute left-2 right-2 -bottom-8 z-20
+            bg-white rounded-2xl p-4 shadow-lg
+            flex flex-col gap-y-3 border-2 border-gray-500/20 md:flex-row md:items-center md:justify-between md:gap-x-4
+        "
+                >
                     {/* Title & Info */}
                     <span className="font-semibold">{pkg.name}</span>
                     <span className="flex gap-x-3">
@@ -108,7 +115,7 @@ export default async function PackageDetailsPage({ params }: Request) {
                             <span className="text-blue-600">
                                 <Notes />
                             </span>
-                            <span className="text-gray-500">{pkg.category?.name}</span>
+                            <span className="text-gray-500 z-20">{pkg.category?.name}</span>
                         </span>
 
                         <span className="flex items-center gap-x-1">
@@ -136,7 +143,7 @@ export default async function PackageDetailsPage({ params }: Request) {
             </section>
 
             {/* About Section */}
-            <section className="relative z-10 mt-24 px-4">
+            <section className="relative z-10 mt-36 -bottom-10 px-4">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2 tracking-tight">
                     About Package
                 </h2>
@@ -146,7 +153,8 @@ export default async function PackageDetailsPage({ params }: Request) {
                 </p>
             </section>
 
-            <section className="relative z-10">
+            {/* Bonuses Section */}
+            <section className="relative -bottom-8 z-10">
                 <h2 className="font-semibold px-4 mb-">All Bonuses For You</h2>
                 <Slider
                     spaceBetween={20}
@@ -164,7 +172,8 @@ export default async function PackageDetailsPage({ params }: Request) {
                 </Slider>
             </section>
 
-            <section className="relative z-10">
+            {/* Catering Details Section */}
+            <section className="relative -bottom-10 z-10">
                 <h2 className="font-semibold px-4 mb-3">Catering Details</h2>
                 <div className="grid grid-cols-2 gap-3 px-4">
                     <span className="flex gap-x-3">
@@ -214,6 +223,70 @@ export default async function PackageDetailsPage({ params }: Request) {
                             <span className="font-semibold">Free 100%</span>
                         </span>
                     </span>
+                </div>
+            </section>
+
+            {/* Testimonials Section */}
+            <section className="relative -bottom-10 z-10 mb-10">
+                <h2 className="font-semibold mb-3 px-4">Testimonials</h2>
+                <Slider
+                    spaceBetween={20}
+                    swipeClassName="!h-[180px] !px-4"
+                    swipeSlideClassName="!w-[300px]" >
+                    {pkg.testimonials.map((item) => {
+                        return (
+                            <ContentTestimonial key={item.id} data={item} />
+                        );
+                    })}
+                </Slider>
+            </section>
+
+            {/* kitchen Section */}
+            <section className="relative">
+                <div
+                    className="
+            bg-white rounded-2xl shadow-lg border border-gray-500/20
+            p-4 flex gap-x-4 items-between-center max-w-sm mx-auto
+        "
+                >
+                    
+                    {/* Image */}
+                    <figure className="w-12 h-12 rounded-full overflow-hidden relative">
+                        <Image
+                            src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${pkg.kitchen.photo}`}
+                            alt={pkg.kitchen.name}
+                            fill
+                            unoptimized
+                            className="object-cover object-center"
+                        />
+                    </figure>
+
+                    {/* Text */}
+                    <div className="flex flex-col">
+                        <div className="flex gap-x-2">
+                            <h3 className="font-semibold text-gray-900">{pkg.kitchen.name}</h3>
+                            <span className="text-green-600 flex items-center">
+                                <BadgeCheckmark />
+                            </span>
+                        </div>
+                        <span className="text-sm text-gray-600">
+                            Since {pkg.kitchen.year}
+                        </span>
+                    </div>
+
+                    {/* Spacer */}
+                    <span className="flex-1"></span>
+
+                    {/* CTA Button */}
+                    <a
+                        href="vendor.html"
+                        className="
+                bg-gray-100 text-gray-700 font-semibold text-sm
+                px-4 py-1 rounded-full
+            "
+                    >
+                        Profile
+                    </a>
                 </div>
             </section>
         </>
