@@ -7,6 +7,9 @@ import Slider from "@/components/Slider";
 import Notes from "@/assets/icons/Notes";
 import People from "@/assets/icons/People";
 import StarClashy from "@/assets/icons/Star-clashy";
+import { ContentBonus } from "@/components/bonuses";
+import PinPoint from "@/assets/icons/PinPoint";
+import Truck from "@/assets/icons/Truck";
 
 type Request = {
     params: {
@@ -100,22 +103,22 @@ export default async function PackageDetailsPage({ params }: Request) {
                     className="left-2 bottom-2 right-2 flex flex-col bg-white rounded-2xl p-3">
                     {/* Title & Info */}
                     <span className="font-semibold">{pkg.name}</span>
-                        <span className="flex gap-x-3">
-                            <span className="flex gap-x-1">
-                                <span className="text-blue-600">
-                                    <Notes />
-                                </span>
-                                <span className="text-gray-500">{pkg.category?.name}</span>
+                    <span className="flex gap-x-3">
+                        <span className="flex gap-x-1">
+                            <span className="text-blue-600">
+                                <Notes />
                             </span>
-
-                            <span className="flex items-center gap-x-1">
-                                <span className="text-blue-600">
-                                    <People />
-                                </span>
-                                {currentTier?.quantity || 0} pax
-                            </span>
+                            <span className="text-gray-500">{pkg.category?.name}</span>
                         </span>
-                    
+
+                        <span className="flex items-center gap-x-1">
+                            <span className="text-blue-600">
+                                <People />
+                            </span>
+                            {currentTier?.quantity || 0} pax
+                        </span>
+                    </span>
+
 
                     {/* Rating Badge */}
                     <span
@@ -141,6 +144,77 @@ export default async function PackageDetailsPage({ params }: Request) {
                 <p className="text-gray-600 leading-relaxed">
                     {pkg.about}
                 </p>
+            </section>
+
+            <section className="relative z-10">
+                <h2 className="font-semibold px-4 mb-">All Bonuses For You</h2>
+                <Slider
+                    spaceBetween={20}
+                    hasPagination
+                    swipeClassName="!h-[153px] !px-4"
+                    swipeSlideClassName="!w-[190px]"
+                >
+                    {
+                        cateringPackage?.data?.bonuses?.map((bonus) => {
+                            return (
+                                <ContentBonus data={bonus} key={bonus.id} />
+                            )
+                        })
+                    }
+                </Slider>
+            </section>
+
+            <section className="relative z-10">
+                <h2 className="font-semibold px-4 mb-3">Catering Details</h2>
+                <div className="grid grid-cols-2 gap-3 px-4">
+                    <span className="flex gap-x-3">
+                        <span
+                            className="w-[52px] aspect-square rounded-full bg-blue-600 text-white items-center justify-center flex"
+                        >
+                            <PinPoint />
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-gray2">City</span>
+                            <span className="font-semibold">{pkg.city.name}</span>
+                        </span>
+                    </span>
+
+                    <span className="flex gap-x-3">
+                        <span
+                            className="w-[52px] aspect-square rounded-full bg-blue-600 text-white items-center justify-center flex"
+                        >
+                            <People />
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-gray2">Portion</span>
+                            <span className="font-semibold">{currentTier?.quantity || 0} People</span>
+                        </span>
+                    </span>
+
+                    <span className="flex gap-x-3">
+                        <span
+                            className="w-[52px] aspect-square rounded-full bg-blue-600 text-white items-center justify-center flex"
+                        >
+                            <Notes />
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-gray2">Category</span>
+                            <span className="font-semibold">{pkg.category.name} </span>
+                        </span>
+                    </span>
+
+                    <span className="flex gap-x-3">
+                        <span
+                            className="w-[52px] aspect-square rounded-full bg-blue-600 text-white items-center justify-center flex"
+                        >
+                            <Truck />
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-gray2">Delivery</span>
+                            <span className="font-semibold">Free 100%</span>
+                        </span>
+                    </span>
+                </div>
             </section>
         </>
 
