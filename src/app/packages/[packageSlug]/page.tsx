@@ -12,6 +12,7 @@ import PinPoint from "@/assets/icons/PinPoint";
 import Truck from "@/assets/icons/Truck";
 import { ContentTestimonial } from "@/components/testimonial";
 import BadgeCheckmark from "@/assets/icons/badge-checkmark";
+import Link from "next/link";
 
 type Request = {
     params: {
@@ -20,8 +21,10 @@ type Request = {
 };
 
 export type TTier = {
+    id: number;
     price: number;
     quantity: number;
+    duration: number;
 };
 
 
@@ -249,7 +252,7 @@ export default async function PackageDetailsPage({ params }: Request) {
             p-4 flex gap-x-4 items-between-center max-w-sm mx-auto
         "
                 >
-                    
+
                     {/* Image */}
                     <figure className="w-12 h-12 rounded-full overflow-hidden relative">
                         <Image
@@ -269,7 +272,7 @@ export default async function PackageDetailsPage({ params }: Request) {
                                 <BadgeCheckmark />
                             </span>
                         </div>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 bottom-5 relative">
                             Since {pkg.kitchen.year}
                         </span>
                     </div>
@@ -278,7 +281,7 @@ export default async function PackageDetailsPage({ params }: Request) {
                     <span className="flex-1"></span>
 
                     {/* CTA Button */}
-                    <a
+                    <Link
                         href="vendor.html"
                         className="
                 bg-gray-100 text-gray-700 font-semibold text-sm
@@ -286,9 +289,36 @@ export default async function PackageDetailsPage({ params }: Request) {
             "
                     >
                         Profile
-                    </a>
+                    </Link>
                 </div>
             </section>
+
+            <div className="sticky bottom-4 px-4 z-50">
+                <div
+                    className="rounded-full flex justify-evenly gap-x-3 bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 pl-6"
+                >
+                    <span className="flex flex-col">
+                        <span className="font-semibold text-xl"> {(currentTier?.price || 0).thousands()} </span>
+                        <span className="text-gray2 text-sm">
+                            {`${currentTier?.duration || 0} Day${(currentTier?.duration || 0) > 1 ? "s" : ""}, `}
+                            {currentTier?.quantity || 0} People
+                        </span>
+                    </span>
+
+                    {currentTier ? (
+                        <Link
+                            href={`/package/${params.packageSlug}/tiers`}
+                            className="bg-amber-600 rounded-full flex items-center justify-center text-white px-3"
+                        >
+                            Booking now
+                        </Link>
+                    ) : (
+                        <span className="bg-gray-600 rounded-full flex items-center justify-center text-gray-200 px-5 cursor-not-allowed">
+                            Booking now
+                        </span>
+                    )}
+                </div>
+            </div>
         </>
 
     );

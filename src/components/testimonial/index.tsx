@@ -42,6 +42,8 @@ export function ContentTestimonial({ data }: { data: TTestimonials }) {
                             className="object-cover object-center"
                             
                           />
+            
+                          
                   </figure>
                   <span className="font-semibold">{data.name}</span>
                 </div>
