@@ -1,0 +1,18 @@
+"use client"
+
+import Header from "@/components/header"
+
+
+function ComposeHeader() {
+  return (
+    <Header 
+    appendClassName="pt-16 " 
+    tittle="Tier Packages"
+    back={{historyBack: true}}
+    more={{display: true, onClick: () => {} }}
+    thumbsUp={{display: false}}
+    />
+  )
+}
+
+export default ComposeHeader

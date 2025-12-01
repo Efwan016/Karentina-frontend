@@ -282,7 +282,7 @@ export default async function PackageDetailsPage({ params }: Request) {
 
                     {/* CTA Button */}
                     <Link
-                        href="vendor.html"
+                        href=""
                         className="
                 bg-gray-100 text-gray-700 font-semibold text-sm
                 px-4 py-1 rounded-full
@@ -293,6 +293,7 @@ export default async function PackageDetailsPage({ params }: Request) {
                 </div>
             </section>
 
+            {/* Sticky Booking Bar */}
             <div className="sticky bottom-4 px-4 z-50">
                 <div
                     className="rounded-full flex justify-evenly gap-x-3 bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 pl-6"

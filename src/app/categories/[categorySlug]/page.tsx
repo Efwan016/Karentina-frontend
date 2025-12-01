@@ -6,7 +6,6 @@ import { TCategory } from "@/components/categories/type";
 
 import ComposeHeader from "./ComposeHeader";
 import People from "@/assets/icons/People";
-import "@/libs/thousands";
 
 import { ContentNewest, ContentPopular } from "@/components/packages";
 import { OpenModal } from "@/components/Modal";
