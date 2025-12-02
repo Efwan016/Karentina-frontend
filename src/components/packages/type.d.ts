@@ -31,6 +31,6 @@ export type TPackageDetails = {
     }[];
     bonuses: TBonus[];
     testimonials: TTestimonials[]
-    tiers: []
+    tiers: TTiers[]
 } & TPackage
     

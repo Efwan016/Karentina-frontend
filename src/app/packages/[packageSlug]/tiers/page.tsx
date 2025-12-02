@@ -6,13 +6,17 @@ import { getPackageDetails } from '@/components/packages/actions';
 import { Metadata, ResolvingMetadata } from 'next';
 import Notes from '@/assets/icons/Notes';
 import People from '@/assets/icons/People';
+import { ContentTier } from '@/components/tiers';
 
 type Request = {
     params: {
         packageSlug: string;
     };
 };
+
 type Tier = {
+    id: number;
+    name: string;
     price: number;
     quantity: number;
 }
@@ -87,7 +91,7 @@ async function PackageTiersPage({ params }: Request) {
                     className="flex gap-x-3 bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 rounded-3xl items-center"
                 >
                     <figure
-                        className="w-[100px] h-[120px] flex-none rounded-2xl overflow-hidden"
+                        className="w-[100px] h-[120px] relative flex-none rounded-2xl overflow-hidden"
                     >
                         <Image
                             src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${pkg.thumbnail}`}
@@ -99,7 +103,7 @@ async function PackageTiersPage({ params }: Request) {
                         />
                     </figure>
                     <span className="flex flex-col gap-y-3">
-                        <span className="font-semibold">Asian Spicy Guandong</span>
+                        <span className="font-semibold">{pkg.name}</span>
                         <span className="flex gap-x-1">
                             <span className="text-color2">
                                 <Notes />
@@ -114,6 +118,23 @@ async function PackageTiersPage({ params }: Request) {
                             <span className="text-gray2">{lowestTier?.quantity || 0} - {highestTier?.quantity || 0} People</span>
                         </span>
                     </span>
+                </div>
+            </section>
+
+            <section className="relative z-10 bg-gray-200 pb-10">
+                <h2 className="font-semibold px-4 mb-3">Choose Your Package</h2>
+                <div className="flex flex-col gap-y-4 px-4">
+                     {
+                        pkg.tiers.map(tier => {
+                            return (
+                                <ContentTier
+                                    key={tier.id}
+                                    data={tier}
+                                    packageSlug={params.packageSlug}
+                                />
+                            )
+                        })
+                    }
                 </div>
             </section>
         </>

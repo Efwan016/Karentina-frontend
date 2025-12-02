@@ -1,9 +1,9 @@
 export default function BadgeCheckmark() {
     return (
         <svg
-            width="200"
-            height="300"
-            viewBox="0 0 200 300"
+            width="20"
+            height="21"
+            viewBox="0 0 20 21"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
         >

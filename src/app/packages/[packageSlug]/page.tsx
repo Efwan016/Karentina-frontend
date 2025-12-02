@@ -167,8 +167,9 @@ export default async function PackageDetailsPage({ params }: Request) {
                 >
                     {
                         cateringPackage?.data?.bonuses?.map((bonus) => {
+                            const bonusHref = `/packages/${packageSlug}/tiers`;
                             return (
-                                <ContentBonus data={bonus} key={bonus.id} />
+                                <ContentBonus data={bonus} key={bonus.id} href={bonusHref} />
                             )
                         })
                     }
@@ -245,53 +246,48 @@ export default async function PackageDetailsPage({ params }: Request) {
             </section>
 
             {/* kitchen Section */}
-            <section className="relative">
-                <div
-                    className="
-            bg-white rounded-2xl shadow-lg border border-gray-500/20
-            p-4 flex gap-x-4 items-between-center max-w-sm mx-auto
-        "
-                >
+           <section className="relative">
+    <h2 className="font-semibold mb-3 px-4">Kitchen</h2>
 
-                    {/* Image */}
-                    <figure className="w-12 h-12 rounded-full overflow-hidden relative">
-                        <Image
-                            src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${pkg.kitchen.photo}`}
-                            alt={pkg.kitchen.name}
-                            fill
-                            unoptimized
-                            className="object-cover object-center"
-                        />
-                    </figure>
+    <span className="flex items-center gap-x-3">
+        {/* Image */}
+        <figure className="w-14 flex-none aspect-square rounded-full overflow-hidden relative">
+            <Image
+                src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${pkg.kitchen.photo}`}
+                alt={pkg.kitchen.name}
+                fill
+                priority
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="w-full h-full object-cover object-center"
+            />
+        </figure>
+        {/* Text */}
+        <span className="flex flex-col">
+            <span className="flex gap-x-2">
+                <h3 className="font-semibold">{pkg.kitchen.name}</h3>
+                <span className="text-green-600">
+                    <BadgeCheckmark />
+                </span>
+            </span>
 
-                    {/* Text */}
-                    <div className="flex flex-col">
-                        <div className="flex gap-x-2">
-                            <h3 className="font-semibold text-gray-900">{pkg.kitchen.name}</h3>
-                            <span className="text-green-600 flex items-center">
-                                <BadgeCheckmark />
-                            </span>
-                        </div>
-                        <span className="text-sm text-gray-600 bottom-5 relative">
-                            Since {pkg.kitchen.year}
-                        </span>
-                    </div>
+            <span className="text-sm text-gray-600">
+                Since {pkg.kitchen.year}
+            </span>
+        </span>
 
-                    {/* Spacer */}
-                    <span className="flex-1"></span>
 
-                    {/* CTA Button */}
-                    <Link
-                        href=""
-                        className="
-                bg-gray-100 text-gray-700 font-semibold text-sm
-                px-4 py-1 rounded-full
-            "
-                    >
-                        Profile
-                    </Link>
-                </div>
-            </section>
+        {/* CTA Button */}
+        <Link
+            href=""
+            className="ml-auto bg-gray-100 px-3 font-semibold text-sm py-1 flex rounded-full"
+        >
+            Profile
+        </Link>
+    </span>
+</section>
+
+
 
             {/* Sticky Booking Bar */}
             <div className="sticky bottom-4 px-4 z-50">
