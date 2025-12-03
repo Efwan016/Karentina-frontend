@@ -304,7 +304,7 @@ export default async function PackageDetailsPage({ params }: Request) {
 
                     {currentTier ? (
                         <Link
-                            href={`/package/${params.packageSlug}/tiers`}
+                            href={`/package/${packageSlug}/tiers`}
                             className="bg-amber-600 rounded-full flex items-center justify-center text-white px-3"
                         >
                             Booking now

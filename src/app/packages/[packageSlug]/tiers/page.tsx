@@ -130,7 +130,8 @@ async function PackageTiersPage({ params }: Request) {
                                 <ContentTier
                                     key={tier.id}
                                     data={tier}
-                                    packageSlug={params.packageSlug}
+                                    packageSlug={packageSlug}
+                                    isPriceShown
                                 />
                             )
                         })

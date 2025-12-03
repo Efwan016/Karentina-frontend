@@ -1,4 +1,5 @@
 import ModalFilterCategories from "@/components/categories/ModalFilterCategories";
+import ModalDetailTier from "@/components/tiers/modalDetailTier";
 import {
     PreventScrolling,
     RouterBack,
@@ -54,6 +55,13 @@ export default async function Page(props: Request) {
                     {searchParams.modal === "filter-category" && (
                         <ModalFilterCategories
                             categorySlug={searchParams.category ?? ""}
+                        />
+                    )}
+
+                    {searchParams.modal === "tier" && (
+                        <ModalDetailTier
+                            packageSlug={searchParams.packageSlug ?? ""}
+                            tierId={searchParams.tierId ?? ""}
                         />
                     )}
                 </div>

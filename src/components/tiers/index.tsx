@@ -7,7 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 
-export function ContentTier({ packageSlug, data }: { packageSlug: string, data: TTier }) {
+export function ContentTier({ packageSlug, data, isPriceShown }: { packageSlug: string, data: TTier; isPriceShown: boolean }) {
     return (
         <div
             className="flex flex-col gap-y-3 h-full bg-white p-4 rounded-3xl relative shadow-[0px_12px_30px_0px_#07041517] border"
@@ -45,6 +45,10 @@ export function ContentTier({ packageSlug, data }: { packageSlug: string, data: 
                     })
                 }
             </ul>
+
+            {
+                isPriceShown && 
+                <>
             <hr />
 
             <span className="flex flex-col gap-y-2">
@@ -67,8 +71,10 @@ export function ContentTier({ packageSlug, data }: { packageSlug: string, data: 
             </span>
 
             <hr />
+                </>
+            }
 
-            <Link href={`/packages/${packageSlug}/information?tier=${data.id}`}
+            <Link href={`/packages/${packageSlug}/informations?tier=${data.id}`}
             className="flex py-3 relative border border-b-gray-200 rounded-full font-semibold justify-center hover:bg-amber-600 hover:text-white hover:border-transparent">
                 Choose package
             </Link>
