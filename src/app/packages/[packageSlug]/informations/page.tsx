@@ -1,5 +1,6 @@
 import React from 'react'
-import ComposeHeader from '@/app/packages/[packageSlug]/tiers/ComposeHeader'
+import ComposeHeader from '@/app/packages/[packageSlug]/informations/ComposeHeader'
+import Form from '@/app/packages/[packageSlug]/informations/Form'
 import Image from 'next/image'
 import { TPackageDetails } from '@/components/packages/type';
 import { getPackageDetails } from '@/components/packages/actions';
@@ -162,8 +163,9 @@ async function PackageTiersPage({ params, searchParams }: Request) {
                         </div>
                     }
                 </div>
-
             </section>
+
+            <Form data={pkg} tierId={tier} />
 
           
         </>

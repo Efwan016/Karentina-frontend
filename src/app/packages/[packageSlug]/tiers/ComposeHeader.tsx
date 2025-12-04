@@ -7,7 +7,7 @@ function ComposeHeader() {
   return (
     <Header 
     appendClassName="pt-16 bg-gray-200 pb-20" 
-    tittle="Tier Packages"
+    tittle="Tier Package"
     back={{historyBack: true}}
     more={{display: true, onClick: () => {} }}
     thumbsUp={{display: false}}
