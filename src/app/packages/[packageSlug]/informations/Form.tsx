@@ -13,20 +13,18 @@ import User from "@/assets/icons/User"
 import { submitInformation } from "@/components/packages/actions"
 import { TPackageDetails } from "@/components/packages/type"
 import { useLocalStorage } from "@uidotdev/usehooks"
-import { use, useEffect } from "react"
-import { useFormState } from "react-dom"
+import { useEffect } from "react"
+import { useActionState } from "react";
 import { TSubmitInformationState } from "@/components/packages/actions";
+import { useRouter } from "next/navigation"
+import "@/libs/thousands";
+
 
 type Props = {
   data: TPackageDetails;
   tierId: string;
 }
-type Tier = {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
+
 
 type TCheckoutItem = NonNullable<TSubmitInformationState["data"]>;
 type TCheckoutStore = Record<string, TCheckoutItem>;
@@ -43,34 +41,46 @@ function Form({ data, tierId }: Props) {
 
   const [checkout, checkoutSet] = useLocalStorage<TCheckoutStore>("checkout", {});
 
+  const safeCheckout = (typeof checkout === "object" && checkout !== null)
+    ? checkout
+    : {};
+
+
+  const router = useRouter();
+  const saved = safeCheckout[data.slug] ?? {};
+
+
   const currentTier = data.tiers?.find(
     t => String(t.id) === tierId
   ) ?? null;
-  
+
 
   const tax = (currentTier?.price || 0) * 0.11;
   const grandTotal = (currentTier?.price || 0) + tax;
 
-  const [state, formAction] = useFormState(submitInformation, initialState);
+  const [state, formAction] = useActionState(submitInformation, initialState);
 
   useEffect(() => {
-  if (state.field) {
-    const el = document.getElementById(state.field);
-    if (el) el.focus();
-  }
+    if (state.field) {
+      const el = document.getElementById(state.field);
+      if (el) el.focus();
+    }
 
-  if (!state.data) return;
+    if (!state.data) return;
 
-  const { slug } = state.data;
+    const { slug } = state.data;
 
-  checkoutSet(prev => ({
-    ...prev,
-    [slug]: {
-      ...prev[slug],
-      ...state.data,
-    },
-  }));
-}, [state]);
+    checkoutSet(prev => ({
+      ...prev,
+      [slug]: {
+        ...prev[slug],
+        ...state.data,
+      },
+    }));
+
+    router.push(`/packages/${slug}/shipping?tierId=${tierId}`);
+  }, [state, checkoutSet, router, tierId]);
+
 
 
 
@@ -99,7 +109,7 @@ function Form({ data, tierId }: Props) {
           >
             <h6 className="text-xl font-bold">Customer Information</h6>
             <span
-              className="text-color2 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
+              className="text-blue-700 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
             >
               <ArrowCircleDown />
             </span>
@@ -109,20 +119,21 @@ function Form({ data, tierId }: Props) {
           >
             <div className="flex relative">
               <span
-                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
+                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-blue-700"
               >
                 <User />
               </span>
               <input
                 type="text"
-                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-e-blue-700 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
                 name="name"
                 id="name"
                 placeholder="Full Name"
+                defaultValue={saved.name ?? ""}
               />
               <label
                 htmlFor="fullname"
-                className="absolute pointer-events-none text-gray2 inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
               >Full Name
               </label>
             </div>
@@ -139,10 +150,11 @@ function Form({ data, tierId }: Props) {
                 name="email"
                 id="email"
                 placeholder="Email"
+                defaultValue={saved.email ?? ""}
               />
               <label
                 htmlFor="email"
-                className="absolute pointer-events-none text-gray2 inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
               >Email
               </label>
             </div>
@@ -159,10 +171,11 @@ function Form({ data, tierId }: Props) {
                 name="phone"
                 id="phone"
                 placeholder="Phone"
+                defaultValue={saved.phone ?? ""}
               />
               <label
                 htmlFor="phone"
-                className="absolute pointer-events-none text-gray2 inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
               >Phone
               </label>
             </div>
@@ -179,10 +192,11 @@ function Form({ data, tierId }: Props) {
                 name="started_at"
                 id="started_at"
                 placeholder="Start At"
+                defaultValue={saved.started_at ?? ""}
               />
               <label
                 htmlFor="started_at"
-                className="absolute pointer-events-none text-gray2 inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
               >Start At
               </label>
             </div>
@@ -190,7 +204,7 @@ function Form({ data, tierId }: Props) {
         </div>
 
         <div
-          className="flex flex-col bg-white border border-gray1 rounded-2xl p-4"
+          className="flex flex-col bg-white border border-gray-300 rounded-2xl p-4"
         >
           <input
 
@@ -198,14 +212,14 @@ function Form({ data, tierId }: Props) {
             name="accordion"
             id="payment-details"
             className="peer hidden"
-            checked
+            defaultChecked
           /><label
             htmlFor="payment-details"
             className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
           >
             <h6 className="text-xl font-bold">Payment Details</h6>
             <span
-              className="text-color2 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
+              className="text-blue-700 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
             >
               <ArrowCircleDown />
             </span>
@@ -222,8 +236,8 @@ function Form({ data, tierId }: Props) {
               <div
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
-                <span className="text-sm text-gray2">Paket Catering</span>
-                <span className="font-semibold">Rp 189.309.499</span>
+                <span className="text-sm text-black">Package Catering</span>
+                <span className="font-semibold">Rp {(currentTier?.price || 0)}</span>
               </div>
             </div>
 
@@ -236,8 +250,8 @@ function Form({ data, tierId }: Props) {
               <div
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
-                <span className="text-sm text-gray2">Duration</span>
-                <span className="font-semibold">30 Days Regularly</span>
+                <span className="text-sm text-black">Duration</span>
+                <span className="font-semibold">{`${currentTier?.duration} day${(currentTier?.duration || 0) > 1 && "s"}`}Regular</span>
               </div>
             </div>
 
@@ -250,8 +264,8 @@ function Form({ data, tierId }: Props) {
               <div
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
-                <span className="text-sm text-gray2">Quantity</span>
-                <span className="font-semibold">125 People</span>
+                <span className="text-sm text-black">Quantity</span>
+                <span className="font-semibold">{(currentTier.quantity || 0)} People</span>
               </div>
             </div>
 
@@ -264,7 +278,7 @@ function Form({ data, tierId }: Props) {
               <div
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
-                <span className="text-sm text-gray2">Delivery</span>
+                <span className="text-sm text-black">Delivery</span>
                 <span className="font-semibold">Rp 0 (Free)</span>
               </div>
             </div>
@@ -278,8 +292,8 @@ function Form({ data, tierId }: Props) {
               <div
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
-                <span className="text-sm text-gray2">PPN 11%</span>
-                <span className="font-semibold">Rp 83.495.666</span>
+                <span className="text-sm text-black">PPN 11%</span>
+                <span className="font-semibold">Rp {tax} </span>
               </div>
             </div>
           </div>
@@ -287,15 +301,15 @@ function Form({ data, tierId }: Props) {
 
         <div className="sticky bottom-4 z-50 mb-8">
           <div
-            className="rounded-full flex justify-between gap-x-3 bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 pl-6"
+            className="rounded-full flex justify-between gap-x-3 border border-black bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 pl-6"
           >
             <span className="flex flex-col">
-              <span className="text-gray2 text-sm">Grand Total</span>
-              <span className="font-semibold text-xl">Rp 57.394.233</span>
+              <span className="text-black text-sm">Grand Total</span>
+              <span className="font-semibold text-xl">Rp {grandTotal} </span>
             </span>
             <button
               type="submit"
-              className="bg-color1 rounded-full flex items-center justify-center text-white px-5"
+              className="bg-amber-600 rounded-full flex border border-black items-center justify-center text-white px-5"
             >
               Continue
             </button>

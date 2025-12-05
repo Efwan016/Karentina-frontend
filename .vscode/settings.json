@@ -1,15 +1,12 @@
 {
   "tailwindCSS.lint.invalidApply": "ignore",
-  "tailwindCSS.lint.unknownAtRules": "ignore",
   "tailwindCSS.lint.cssConflict": "ignore",
-
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
   "cSpell.words": [
-    "Adzani",
     "Clashy",
-    "kategori",
-    "Katerina",
-    "Potongan",
-    "Tidak",
-    "Tshow"
+    "Tshow",
+    "uidotdev",
+    "usehooks"
   ]
+
 }

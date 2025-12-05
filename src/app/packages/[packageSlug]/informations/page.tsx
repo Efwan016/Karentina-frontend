@@ -1,6 +1,5 @@
 import React from 'react'
 import ComposeHeader from '@/app/packages/[packageSlug]/informations/ComposeHeader'
-import Form from '@/app/packages/[packageSlug]/informations/Form'
 import Image from 'next/image'
 import { TPackageDetails } from '@/components/packages/type';
 import { getPackageDetails } from '@/components/packages/actions';
@@ -8,6 +7,7 @@ import { Metadata, ResolvingMetadata } from 'next';
 import Notes from '@/assets/icons/Notes';
 import People from '@/assets/icons/People';
 import { OpenModal } from '@/components/Modal';
+import Form from '@/app/packages/[packageSlug]/informations/Form';
 
 type Request = {
     params: {
