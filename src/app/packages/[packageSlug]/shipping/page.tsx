@@ -1,5 +1,5 @@
 import React from 'react'
-import ComposeHeader from '@/app/packages/[packageSlug]/informations/ComposeHeader'
+import ComposeHeader from '@/app/packages/[packageSlug]/shipping/ComposeHeader'
 import Image from 'next/image'
 import { TPackageDetails } from '@/components/packages/type';
 import { getPackageDetails } from '@/components/packages/actions';
@@ -7,7 +7,8 @@ import { Metadata, ResolvingMetadata } from 'next';
 import Notes from '@/assets/icons/Notes';
 import People from '@/assets/icons/People';
 import { OpenModal } from '@/components/Modal';
-import FormWrapper from './FormWrapper';
+import FormShippingWrapper from '@/app/packages/[packageSlug]/shipping/Form';
+
 
 type Request = {
     params: {
@@ -50,7 +51,7 @@ export async function generateMetadata(
     const pkg = cateringPackage.data;
 
     return {
-        title: `Information | ${pkg.name} — Package | ${previous.title ?? "App"}`,
+        title: `Shipping | ${pkg.name} — Package | ${previous.title ?? "App"}`,
         description: pkg.about ?? `Details for ${pkg.name} catering package.`,
     };
 }
@@ -165,7 +166,8 @@ async function PackageTiersPage({ params, searchParams }: Request) {
                 </div>
             </section>
 
-            <FormWrapper data={pkg} tierId={tier} />
+            <FormShippingWrapper data={pkg} tierId={tier} />
+
 
           
         </>

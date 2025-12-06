@@ -1,4 +1,4 @@
-
+"use server"
 import { redirect } from 'next/navigation';
 
 export type TSubmitInformationState = {
@@ -10,6 +10,18 @@ export type TSubmitInformationState = {
     email: string;
     phone: string;
     started_at: string;
+    tierId: string;
+  };
+};
+
+export type TSubmitShippingState = {
+  message: string;
+  field: string;
+  data?: {
+    slug: string;
+    address: string;
+    post_code: string;
+    notes: string;
     tierId: string;
   };
 };
@@ -119,8 +131,40 @@ export async function submitInformation(
       tierId,
     },
   };
+
+  redirect(`/packages/${slug}/shipping?tierId=${tierId}`);
 }
 
-export function redirectToCheckout(slug: string, tierId: string) {
-  redirect(`/packages/${slug}/checkout?tierId=${tierId}`);
+export async function submitShipping(
+  prevState: TSubmitShippingState,
+  formData: FormData
+): Promise<TSubmitShippingState> {
+
+  const address = formData.get("address") as string | null;
+  const post_code = formData.get("post code") as string | null;
+  const notes = formData.get("Notes") as string | null;
+  const slug = formData.get("slug") as string | null;
+ 
+  const tierId = formData.get("catering_tier_id") as string | null;
+
+  if (!address) return { message: "Address is required", field: "address" };
+  if (!post_code) return { message: "Post Code is required", field: "Post Code" };
+  if (!notes) return { message: "Notes is required", field: "Notes" };
+  if (!slug) return { message: "Slug is missing", field: "slug" };
+  if (!tierId) return { message: "Tier ID is required", field: "tierId" };
+
+  return {
+    message: "Next Step",
+    field: "",
+    data: {
+      slug,
+      address,
+      post_code,
+      notes,
+      tierId,
+    },
+  };
+
+  redirect(`/packages/${slug}/payments?tierId=${tierId}`);
 }
+

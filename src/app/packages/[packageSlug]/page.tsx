@@ -292,11 +292,11 @@ export default async function PackageDetailsPage({ params }: Request) {
             {/* Sticky Booking Bar */}
             <div className="sticky bottom-4 px-4 z-50">
                 <div
-                    className="rounded-full flex justify-evenly gap-x-3 bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 pl-6"
+                    className="rounded-full flex justify-evenly gap-x-3 border border-black bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 pl-6"
                 >
                     <span className="flex flex-col">
                         <span className="font-semibold text-xl"> {(currentTier?.price || 0).thousands()} </span>
-                        <span className="text-gray2 text-sm">
+                        <span className="text-gray-600 text-sm">
                             {`${currentTier?.duration || 0} Day${(currentTier?.duration || 0) > 1 ? "s" : ""}, `}
                             {currentTier?.quantity || 0} People
                         </span>

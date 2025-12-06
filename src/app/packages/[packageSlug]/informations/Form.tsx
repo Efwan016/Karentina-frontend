@@ -20,21 +20,25 @@ import { useRouter } from "next/navigation"
 import "@/libs/thousands";
 
 
-type Props = {
+export type Props = {
   data: TPackageDetails;
   tierId: string;
 }
 
+type TCheckoutItem = NonNullable<TSubmitInformationState["data"]> & {
+  price?: number;
+  duration?: number;
+  quantity?: number;
+  tax?: number;
+  grandTotal?: number;
+};
 
-type TCheckoutItem = NonNullable<TSubmitInformationState["data"]>;
 type TCheckoutStore = Record<string, TCheckoutItem>;
-
 
 const initialState: TSubmitInformationState = {
   message: "",
   field: "",
 };
-
 
 
 function Form({ data, tierId }: Props) {
@@ -45,15 +49,12 @@ function Form({ data, tierId }: Props) {
     ? checkout
     : {};
 
-
   const router = useRouter();
   const saved = safeCheckout[data.slug] ?? {};
-
 
   const currentTier = data.tiers?.find(
     t => String(t.id) === tierId
   ) ?? null;
-
 
   const tax = (currentTier?.price || 0) * 0.11;
   const grandTotal = (currentTier?.price || 0) + tax;
@@ -68,28 +69,32 @@ function Form({ data, tierId }: Props) {
 
     if (!state.data) return;
 
-    const { slug } = state.data;
+    const { slug, tierId } = state.data;
+
+    const paymentData = {
+      price: currentTier?.price,
+      duration: currentTier?.duration,
+      quantity: currentTier?.quantity,
+      tax,
+      grandTotal,
+    };
 
     checkoutSet(prev => ({
       ...prev,
       [slug]: {
         ...prev[slug],
         ...state.data,
+        ...paymentData, 
       },
     }));
 
     router.push(`/packages/${slug}/shipping?tierId=${tierId}`);
-  }, [state, checkoutSet, router, tierId]);
-
-
-
-
-
+  }, [state, checkoutSet, router, currentTier, tax, grandTotal]);
 
   return (
 
     <form action={formAction}>
-      <input type="hidden" value={data.slug} name="slug" />
+       <input type="hidden" value={data.slug} name="slug" />
       <input type="hidden" value={data.id} name="catering_package_id" />
       <input type="hidden" value={tierId} name="catering_tier_id" />
 
@@ -265,7 +270,7 @@ function Form({ data, tierId }: Props) {
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
                 <span className="text-sm text-black">Quantity</span>
-                <span className="font-semibold">{(currentTier.quantity || 0)} People</span>
+                <span className="font-semibold">{(currentTier?.quantity || 0)} People</span>
               </div>
             </div>
 
@@ -309,7 +314,7 @@ function Form({ data, tierId }: Props) {
             </span>
             <button
               type="submit"
-              className="bg-amber-600 rounded-full flex border border-black items-center justify-center text-white px-5"
+              className="bg-amber-600 rounded-full flex border border-black items-center justify-center text-white px-5 cursor-pointer hover:bg-amber-500 transition-colors"
             >
               Continue
             </button>
