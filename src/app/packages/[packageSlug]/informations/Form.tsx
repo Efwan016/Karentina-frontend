@@ -256,7 +256,7 @@ function Form({ data, tierId }: Props) {
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray3"
               >
                 <span className="text-sm text-black">Duration</span>
-                <span className="font-semibold">{`${currentTier?.duration} day${(currentTier?.duration || 0) > 1 && "s"}`}Regular</span>
+                <span className="font-semibold">{`${currentTier?.duration} day${(currentTier?.duration || 0) > 1 ? "s" : ""}`}Regular</span>
               </div>
             </div>
 

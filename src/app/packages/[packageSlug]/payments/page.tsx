@@ -1,5 +1,5 @@
 import React from 'react'
-import ComposeHeader from '@/app/packages/[packageSlug]/shipping/ComposeHeader'
+import ComposeHeader from '@/app/packages/[packageSlug]/payments/ComposeHeader'
 import Image from 'next/image'
 import { TPackageDetails } from '@/components/packages/type';
 import { getPackageDetails } from '@/components/packages/actions';
@@ -15,7 +15,7 @@ type Request = {
         packageSlug: string;
     };
     searchParams: {
-        tier: string
+        tierId: string
     };
 };
 
@@ -59,7 +59,7 @@ export async function generateMetadata(
 async function PackageTiersPage({ params, searchParams }: Request) {
 
      const { packageSlug } = await params;
-    const { tier } = await searchParams;
+    const { tierId } = await searchParams;
 
     const cateringPackage: { data: TPackageDetails } =
         await getPackageDetails(packageSlug);
@@ -69,7 +69,7 @@ async function PackageTiersPage({ params, searchParams }: Request) {
     }
 
     const currentTier = cateringPackage.data.tiers?.find(
-        t => String(t.id) === tier
+        t => String(t.id) === tierId
     );
 
     const pkg = cateringPackage.data;
@@ -155,7 +155,7 @@ async function PackageTiersPage({ params, searchParams }: Request) {
                                         modal="tier"
                                         queries={{
                                             packageSlug: packageSlug,
-                                            tierId: tier
+                                            tierId: tierId
                                         }}>
                                         Details
                                     </OpenModal>
@@ -166,7 +166,7 @@ async function PackageTiersPage({ params, searchParams }: Request) {
                 </div>
             </section>
 
-            <FormPaymentWrapper data={pkg} tierId={tier} />
+            <FormPaymentWrapper data={pkg} tierId={tierId} />
 
 
           

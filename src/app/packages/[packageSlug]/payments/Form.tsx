@@ -1,9 +1,7 @@
 "use client"
 
 import "@/libs/thousands";
-import { useLocalStorage } from "@uidotdev/usehooks"
-import { useEffect } from "react"
-import { useActionState } from "react";
+import { useActionState, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 
 import ArrowCircleDown from "@/assets/icons/Arrow-circle-down"
@@ -16,14 +14,15 @@ import Truck from "@/assets/icons/Truck"
 import PinPoint from "@/assets/icons/PinPoint"
 import OfficerBuildingIcon from "@/assets/icons/Officer-building"
 
-import { submitShipping, TSubmitInformationState, TSubmitShippingState } from "@/components/packages/actions"
+import { submitShipping, TSubmitShippingState } from "@/components/packages/actions"
 import { TPackageDetails } from "@/components/packages/type"
 import { formatDate } from 'date-fns';
 import MapIcon from "@/assets/icons/MapIcon";
 import Notes from "@/assets/icons/Notes";
-import PhoneIcon from "@/assets/icons/Phone";
-import Mailbox from "@/assets/icons/Mailbox";
 import User from "@/assets/icons/User";
+import Mailbox from "@/assets/icons/Mailbox";
+import PhoneIcon from "@/assets/icons/Phone";
+
 
 
 export type Props = {
@@ -32,13 +31,19 @@ export type Props = {
 }
 
 
-type TCheckoutShippingItem = Partial<TSubmitShippingState["data"]> & {
-  payment?: {
-    price: number;
-    duration: number;
-    quantity: number;
-    tax: number;
-    grandTotal: number;
+type TCheckoutShippingItem = NonNullable<TSubmitShippingState["data"]> & {
+  name: string;
+  email: string;
+  phone: number;
+  price?: number;
+  duration?: number;
+  quantity?: number;
+  tax?: number;
+  grandTotal?: number;
+  shipping?: {
+    address: string;
+    post_code: string;
+    notes: string;
   };
 };
 
@@ -54,52 +59,88 @@ const initialState: TSubmitShippingState = {
 
 function Form({ data, tierId }: Props) {
 
-  const [checkout, checkoutSet] = useLocalStorage<TCheckoutStore>("checkout", {});
+
+  const getInitialCheckoutState = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("checkout");
+        if (stored) {
+          return JSON.parse(stored) as TCheckoutStore;
+        }
+      } catch (e) {
+        console.error("Error reading localStorage:", e);
+      }
+    }
+    return {};
+  };
+
+  const [checkout, setCheckout] = useState<TCheckoutStore>(getInitialCheckoutState);
+
+  const checkoutSet = useCallback((newValueCallback: (prev: TCheckoutStore) => TCheckoutStore) => {
+    setCheckout(prev => {
+      const newState = newValueCallback(prev);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("checkout", JSON.stringify(newState));
+      }
+      return newState;
+    });
+  }, []);
 
   const safeCheckout = (typeof checkout === "object" && checkout !== null)
     ? checkout
     : {};
-
-
   const router = useRouter();
-  const savedShipping = (safeCheckout[data.slug] as TCheckoutShippingItem) ?? {};
-  const savedInfo = (safeCheckout[data.slug] as Partial<TSubmitInformationState["data"]>) ?? {};
-  
- const payment = (safeCheckout[data.slug] as TCheckoutShippingItem)?.payment;
+  const saved = safeCheckout[data.slug] ?? {};
 
- const computedTax = payment ? payment.price * 0.11 : 0;
-const computedGrand = payment ? payment.price + computedTax : 0;
+  const currentTier = data.tiers?.find(
+    t => String(t.id) === tierId
+  ) ?? null;
 
-  const [state, formAction] = useActionState(submitShipping, initialState);
+  const tax = (currentTier?.price || 0) * 0.11;
+  const grandTotal = (currentTier?.price || 0) + tax;
 
-useEffect(() => {
-  if (state.field) {
-    const el = document.getElementById(state.field);
-    if (el) el.focus();
-  }
+  const [state, formAction] = useActionState(submitShipping, initialState)
+  const savedShipping = saved?.shipping || saved || { address: "", post_code: "", notes: "" };
 
-  if (!state.data) return;
 
-  const { slug } = state.data;
+  useEffect(() => {
+    if (!state.data) return;
 
-  checkoutSet(prev => ({
-    ...prev,
-    [slug]: {
-      ...prev[slug],
-      ...state.data,
-      payment, 
-    }
-  }));
+    const { slug, tierId: stateTierId } = state.data;
+    const paymentData = {
+      price: currentTier?.price,
+      duration: currentTier?.duration,
+      quantity: currentTier?.quantity,
+      tax,
+      grandTotal,
+    };
+    Promise.resolve().then(() => {
+      try {
+        checkoutSet(prev => {
+          const previousData = prev[slug] || {};
+          const newCheckoutItem = {
+            ...previousData,
+            ...(state.data || {}),
+            ...paymentData,
+            shipping: {
+              address: state.data!.address,
+              post_code: state.data!.post_code,
+              notes: state.data!.notes,
+            },
+          }
+          return {
+            ...prev,
+            [slug]: newCheckoutItem,
+          };
+        });
 
-  router.push(`/packages/${slug}/payments?tierId=${tierId}`);
-}, [
-  state,
-  payment,
-  checkoutSet,
-  router,
-  tierId
-]);
-
+        router.push(`/packages/${slug}/payments?tierId=${stateTierId}`);
+      } catch (e) {
+        console.error('CRITICAL ERROR DURING LOCALSTORAGE SAVE OR ROUTING:', e);
+        alert('CRITICAL SAVE ERROR. Check console!');
+      }
+    });
+  }, [state, checkoutSet, router, currentTier, tax, grandTotal]);
 
 
   return (
@@ -108,9 +149,11 @@ useEffect(() => {
       <input type="hidden" value={data.slug} name="slug" />
       <input type="hidden" value={data.id} name="catering_package_id" />
       <input type="hidden" value={tierId} name="catering_tier_id" />
+      <input type="hidden" value={saved?.started_at} name="started_at" />
 
       <div className="flex flex-col gap-y-7 px-4">
-         <div
+
+          <div
                   className="flex flex-col bg-white border border-gray-200 rounded-2xl p-4"
                 >
                   <input
@@ -145,7 +188,7 @@ useEffect(() => {
                         name="name"
                         id="name"
                         placeholder="Full Name"
-                        defaultValue={savedInfo.name ?? ""}
+                        defaultValue={saved.name ?? ""}
                       />
                       <label
                         htmlFor="fullname"
@@ -166,7 +209,7 @@ useEffect(() => {
                         name="email"
                         id="email"
                         placeholder="Email"
-                        defaultValue={savedInfo.email ?? ""}
+                        defaultValue={saved.email ?? ""}
                       />
                       <label
                         htmlFor="email"
@@ -187,7 +230,7 @@ useEffect(() => {
                         name="phone"
                         id="phone"
                         placeholder="Phone"
-                        defaultValue={savedInfo.phone ?? ""}
+                        defaultValue={saved.phone ?? ""}
                       />
                       <label
                         htmlFor="phone"
@@ -208,7 +251,7 @@ useEffect(() => {
                         name="started_at"
                         id="started_at"
                         placeholder="Start At"
-                        defaultValue={savedInfo.started_at ?? ""}
+                        defaultValue={saved.started_at ?? ""}
                       />
                       <label
                         htmlFor="started_at"
@@ -230,7 +273,7 @@ useEffect(() => {
             className="peer hidden"
             defaultChecked
           /><label
-            htmlFor="customer-information"
+            htmlFor="Shipping-address"
             className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
           >
             <h6 className="text-xl font-bold">Shipping Address</h6>
@@ -255,8 +298,8 @@ useEffect(() => {
                 <span className="text-sm text-gray2">Started At</span>
                 <span className="font-semibold">
                   {formatDate
-                    (savedInfo?.started_at ? new Date
-                      (savedInfo.started_at) : new Date(),
+                    (saved?.started_at ? new Date
+                      (saved?.started_at) : new Date(),
                       'dd MMMM yyyy'
                     )}
                 </span>
@@ -305,7 +348,7 @@ useEffect(() => {
                 id="address"
                 rows={3}
                 placeholder="Address"
-                defaultValue={savedShipping?.address}
+                defaultValue={savedShipping.address || ""}
               ></textarea>
               <label
                 htmlFor="address"
@@ -321,12 +364,10 @@ useEffect(() => {
                 <MapIcon />
               </span>
               <input
-                type="text"
-                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-blue-600 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none"
                 name="post_code"
                 id="post_code"
-                placeholder="Post code"
-                defaultValue={savedShipping?.post_code}
+                defaultValue={savedShipping.post_code || ""}
               />
               <label
                 htmlFor="post_code"
@@ -346,8 +387,8 @@ useEffect(() => {
                 id="notes"
                 rows={3}
                 placeholder="Notes"
-                defaultValue={savedShipping?.notes}
-              ></textarea>
+                defaultValue={savedShipping.notes || ""}
+              />
               <label
                 htmlFor="notes"
                 className="absolute pointer-events-none text-gray-700 flex items-center ml-12 peer-placeholder-shown:top-5 top-3 peer-placeholder-shown:text-base text-sm transition-all duration-300"
@@ -391,7 +432,7 @@ useEffect(() => {
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
               >
                 <span className="text-sm text-black">Package Catering</span>
-                <span className="font-semibold">Rp {(payment?.price)}</span>
+                <span className="font-semibold">Rp {(currentTier?.price || 0)}</span>
               </div>
             </div>
 
@@ -405,7 +446,7 @@ useEffect(() => {
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
               >
                 <span className="text-sm text-black">Duration</span>
-                <span className="font-semibold">{`${payment?.duration} day${(payment?.duration || 0) > 1 && "s"}`}Regular</span>
+                <span className="font-semibold">{`${currentTier?.duration} day${(currentTier?.duration || 0) > 1 ? "s" : ""}`}Regular</span>
               </div>
             </div>
 
@@ -419,7 +460,7 @@ useEffect(() => {
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
               >
                 <span className="text-sm text-black">Quantity</span>
-                <span className="font-semibold">{(payment?.quantity || 0)} People</span>
+                <span className="font-semibold">{(currentTier?.quantity || 0)} People</span>
               </div>
             </div>
 
@@ -447,7 +488,7 @@ useEffect(() => {
                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
               >
                 <span className="text-sm text-black">PPN 11%</span>
-                <span className="font-semibold">Rp {payment?.tax ?? computedTax} </span>
+                <span className="font-semibold">Rp {tax} </span>
               </div>
             </div>
           </div>
@@ -459,7 +500,7 @@ useEffect(() => {
           >
             <span className="flex flex-col">
               <span className="text-black text-sm">Grand Total</span>
-              <span className="font-semibold text-xl">Rp {payment?.grandTotal ?? computedGrand} </span>
+              <span className="font-semibold text-xl">Rp {grandTotal} </span>
             </span>
             <button
               type="submit"

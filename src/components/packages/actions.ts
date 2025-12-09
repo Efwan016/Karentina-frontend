@@ -1,5 +1,4 @@
 "use server"
-import { redirect } from 'next/navigation';
 
 export type TSubmitInformationState = {
   message: string;
@@ -23,6 +22,7 @@ export type TSubmitShippingState = {
     post_code: string;
     notes: string;
     tierId: string;
+    started_at: string;
   };
 };
 
@@ -112,12 +112,15 @@ export async function submitInformation(
   const started_at = formData.get("started_at") as string | null;
   const tierId = formData.get("catering_tier_id") as string | null;
 
+
   if (!name) return { message: "Name is required", field: "name" };
   if (!email) return { message: "Email is required", field: "email" };
   if (!phone) return { message: "Phone is required", field: "phone" };
   if (!started_at) return { message: "Start date is required", field: "started_at" };
   if (!slug) return { message: "Slug is missing", field: "slug" };
   if (!tierId) return { message: "Tier ID is required", field: "tierId" };
+
+
 
   return {
     message: "Next Step",
@@ -132,8 +135,8 @@ export async function submitInformation(
     },
   };
 
-  redirect(`/packages/${slug}/shipping?tierId=${tierId}`);
 }
+
 
 export async function submitShipping(
   prevState: TSubmitShippingState,
@@ -141,30 +144,95 @@ export async function submitShipping(
 ): Promise<TSubmitShippingState> {
 
   const address = formData.get("address") as string | null;
-  const post_code = formData.get("post code") as string | null;
-  const notes = formData.get("Notes") as string | null;
+  const post_code = formData.get("post_code") as string | null;
+  const notes = formData.get("notes") as string | null;
   const slug = formData.get("slug") as string | null;
- 
+  const started_at = formData.get("started_at") as string | null;
   const tierId = formData.get("catering_tier_id") as string | null;
+  
+  if (!address) {
+      return { message: "Address is required", field: "address" };
+  }
 
-  if (!address) return { message: "Address is required", field: "address" };
-  if (!post_code) return { message: "Post Code is required", field: "Post Code" };
-  if (!notes) return { message: "Notes is required", field: "Notes" };
-  if (!slug) return { message: "Slug is missing", field: "slug" };
-  if (!tierId) return { message: "Tier ID is required", field: "tierId" };
+  if (!post_code) {
+      return { message: "Post Code is required", field: "post_code" };
+  }
 
+  if (!notes) {
+      return { message: "Notes is required", field: "notes" };
+  }
+  if (!slug) {
+      return { message: "Slug is missing", field: "slug" };
+  }
+
+  if (!tierId) { 
+      return { message: "Tier ID is required", field: "catering_tier_id" };
+  }
+  
+  if (!started_at) { 
+      return { message: "Start date is missing", field: "started_at" };
+  }
+  
   return {
     message: "Next Step",
     field: "",
     data: {
-      slug,
-      address,
-      post_code,
-      notes,
-      tierId,
+      slug: slug!,
+      address: address!,
+      post_code: post_code!,
+      notes: notes!,
+      tierId: tierId!,
+      started_at: started_at!,
     },
   };
 
-  redirect(`/packages/${slug}/payments?tierId=${tierId}`);
 }
 
+export async function submitDelivery(
+  prevState: TSubmitShippingState,
+  formData: FormData
+): Promise<TSubmitShippingState> {
+
+  const address = formData.get("address") as string | null;
+  const post_code = formData.get("post_code") as string | null;
+  const notes = formData.get("notes") as string | null;
+  const slug = formData.get("slug") as string | null;
+  const started_at = formData.get("started_at") as string | null;
+  const tierId = formData.get("catering_tier_id") as string | null;
+  
+  if (!address) {
+      return { message: "Address is required", field: "address" };
+  }
+
+  if (!post_code) {
+      return { message: "Post Code is required", field: "post_code" };
+  }
+
+  if (!notes) {
+      return { message: "Notes is required", field: "notes" };
+  }
+  if (!slug) {
+      return { message: "Slug is missing", field: "slug" };
+  }
+
+  if (!tierId) { 
+      return { message: "Tier ID is required", field: "catering_tier_id" };
+  }
+  
+  if (!started_at) { 
+      return { message: "Start date is missing", field: "started_at" };
+  }
+  
+  return {
+    message: "Next Step",
+    field: "",
+    data: {
+      slug: slug!,
+      address: address!,
+      post_code: post_code!,
+      notes: notes!,
+      tierId: tierId!,
+      started_at: started_at!,
+    },
+  };
+}
