@@ -25,3 +25,8 @@
 .swiper-pagination .swiper-pagination-bullet {
   @apply bg-white mx-0.5!;
 }
+
+input:read-only:not([type="file"]),
+textarea:read-only{
+  @apply bg-gray-200 border-none cursor-not-allowed;
+}

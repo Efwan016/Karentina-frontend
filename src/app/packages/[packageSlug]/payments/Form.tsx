@@ -14,7 +14,7 @@ import Truck from "@/assets/icons/Truck"
 import PinPoint from "@/assets/icons/PinPoint"
 import OfficerBuildingIcon from "@/assets/icons/Officer-building"
 
-import { submitShipping, TSubmitShippingState } from "@/components/packages/actions"
+import { submitPayment, TPayment } from "@/components/packages/actions"
 import { TPackageDetails } from "@/components/packages/type"
 import { formatDate } from 'date-fns';
 import MapIcon from "@/assets/icons/MapIcon";
@@ -22,7 +22,11 @@ import Notes from "@/assets/icons/Notes";
 import User from "@/assets/icons/User";
 import Mailbox from "@/assets/icons/Mailbox";
 import PhoneIcon from "@/assets/icons/Phone";
-
+import BcaIcon from "@/assets/icons/BCAIcon";
+import BadgeCheckmark from "@/assets/icons/badge-checkmark";
+import MandiriIcon from "@/assets/icons/MandiriIcon";
+import ReceiptIcon from "@/assets/icons/ReceiptIcon";
+import { toast } from "react-toastify";
 
 
 export type Props = {
@@ -31,10 +35,11 @@ export type Props = {
 }
 
 
-type TCheckoutShippingItem = NonNullable<TSubmitShippingState["data"]> & {
+type TCheckoutPaymentItem = NonNullable<TPayment["data"]> & {
   name: string;
   email: string;
   phone: number;
+  started_at?: string;
   price?: number;
   duration?: number;
   quantity?: number;
@@ -47,10 +52,10 @@ type TCheckoutShippingItem = NonNullable<TSubmitShippingState["data"]> & {
   };
 };
 
-type TCheckoutStore = Record<string, TCheckoutShippingItem>;
+type TCheckoutStore = Record<string, TCheckoutPaymentItem>;
 
 
-const initialState: TSubmitShippingState = {
+const initialState: TPayment = {
   message: "",
   field: "",
 };
@@ -99,48 +104,50 @@ function Form({ data, tierId }: Props) {
   const tax = (currentTier?.price || 0) * 0.11;
   const grandTotal = (currentTier?.price || 0) + tax;
 
-  const [state, formAction] = useActionState(submitShipping, initialState)
-  const savedShipping = saved?.shipping || saved || { address: "", post_code: "", notes: "" };
+  const [state, formAction] = useActionState(submitPayment, initialState)
+  const savedShipping: { address: string; post_code: string; notes: string; } =
+    saved && typeof saved.shipping === "object"
+      ? saved.shipping
+      : { address: "", post_code: "", notes: "" };
 
 
   useEffect(() => {
-    if (!state.data) return;
+    if (!state.data) {
+      if (state.data === "toaster"){
+        toast.error(state.message)
+      } else  {
+        const element = document.getElementById(state.field);
+        element?.focus();
+        element?.click();
+        element?.scrollIntoView({
+          behavior: "smooth",
+        })
+      }
+      return;
+    }
 
-    const { slug, tierId: stateTierId } = state.data;
-    const paymentData = {
-      price: currentTier?.price,
-      duration: currentTier?.duration,
-      quantity: currentTier?.quantity,
-      tax,
-      grandTotal,
-    };
     Promise.resolve().then(() => {
       try {
         checkoutSet(prev => {
-          const previousData = prev[slug] || {};
-          const newCheckoutItem = {
-            ...previousData,
-            ...(state.data || {}),
-            ...paymentData,
-            shipping: {
-              address: state.data!.address,
-              post_code: state.data!.post_code,
-              notes: state.data!.notes,
-            },
+          const previousData = {...prev};
+          if (state.data?.slug) {
+            delete previousData[state.data.slug]
           }
-          return {
-            ...prev,
-            [slug]: newCheckoutItem,
-          };
+          
+          return previousData;
         });
 
-        router.push(`/packages/${slug}/payments?tierId=${stateTierId}`);
+        if (state.data) {
+          router.push(`/packages/${data.slug}/success?tierId=${tierId}&phone=${state.data.phone}&trx-id=${state.data.booking_trx_id}`);
+        }
       } catch (e) {
         console.error('CRITICAL ERROR DURING LOCALSTORAGE SAVE OR ROUTING:', e);
         alert('CRITICAL SAVE ERROR. Check console!');
       }
     });
-  }, [state, checkoutSet, router, currentTier, tax, grandTotal]);
+  }, [state, checkoutSet, router, currentTier, tax, grandTotal, data.slug, tierId]);
+  
+      const pkg = data;
 
 
   return (
@@ -153,115 +160,118 @@ function Form({ data, tierId }: Props) {
 
       <div className="flex flex-col gap-y-7 px-4">
 
+        <div
+          className="flex flex-col bg-white border border-gray-200 rounded-2xl p-4"
+        >
+          <input
+            type="checkbox"
+            name="accordion"
+            id="customer-information"
+            className="peer hidden"
+          /><label
+            htmlFor="customer-information"
+            className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
+          >
+            <h6 className="text-xl font-bold">Customer Information</h6>
+            <span
+              className="text-blue-700 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
+            >
+              <ArrowCircleDown />
+            </span>
+          </label>
           <div
-                  className="flex flex-col bg-white border border-gray-200 rounded-2xl p-4"
-                >
-                  <input
-                    type="checkbox"
-                    name="accordion"
-                    id="customer-information"
-                    className="peer hidden"
-                    defaultChecked
-                  /><label
-                    htmlFor="customer-information"
-                    className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
-                  >
-                    <h6 className="text-xl font-bold">Customer Information</h6>
-                    <span
-                      className="text-blue-700 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
-                    >
-                      <ArrowCircleDown />
-                    </span>
-                  </label>
-                  <div
-                    className="flex flex-col gap-y-5 max-h-0 overflow-hidden transition-all duration-300 h-full peer-checked:mt-5 peer-checked:max-h-screen"
-                  >
-                    <div className="flex relative">
-                      <span
-                        className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-blue-700"
-                      >
-                        <User />
-                      </span>
-                      <input
-                        type="text"
-                        className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-e-blue-700 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
-                        name="name"
-                        id="name"
-                        placeholder="Full Name"
-                        defaultValue={saved.name ?? ""}
-                      />
-                      <label
-                        htmlFor="fullname"
-                        className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
-                      >Full Name
-                      </label>
-                    </div>
-        
-                    <div className="flex relative">
-                      <span
-                        className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
-                      >
-                        <Mailbox />
-                      </span>
-                      <input
-                        type="email"
-                        className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
-                        name="email"
-                        id="email"
-                        placeholder="Email"
-                        defaultValue={saved.email ?? ""}
-                      />
-                      <label
-                        htmlFor="email"
-                        className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
-                      >Email
-                      </label>
-                    </div>
-        
-                    <div className="flex relative">
-                      <span
-                        className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
-                      >
-                        <PhoneIcon />
-                      </span>
-                      <input
-                        type="tel"
-                        className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
-                        name="phone"
-                        id="phone"
-                        placeholder="Phone"
-                        defaultValue={saved.phone ?? ""}
-                      />
-                      <label
-                        htmlFor="phone"
-                        className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
-                      >Phone
-                      </label>
-                    </div>
-        
-                    <div className="flex relative">
-                      <span
-                        className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
-                      >
-                        <CalenderBox />
-                      </span>
-                      <input
-                        type="date"
-                        className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none"
-                        name="started_at"
-                        id="started_at"
-                        placeholder="Start At"
-                        defaultValue={saved.started_at ?? ""}
-                      />
-                      <label
-                        htmlFor="started_at"
-                        className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
-                      >Start At
-                      </label>
-                    </div>
-                  </div>
-                </div>
-        
+            className="flex flex-col gap-y-5 max-h-0 overflow-hidden transition-all duration-300 h-full peer-checked:mt-5 peer-checked:max-h-screen"
+          >
+            <div className="flex relative">
+              <span
+                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-blue-700"
+              >
+                <User />
+              </span>
+              <input
+                readOnly
+                type="text"
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-e-blue-700 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
+                name="name"
+                id="name"
+                placeholder="Full Name"
+                defaultValue={saved.name ?? ""}
+              />
+              <label
+                htmlFor="fullname"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+              >Full Name
+              </label>
+            </div>
+
+            <div className="flex relative">
+              <span
+                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
+              >
+                <Mailbox />
+              </span>
+              <input
+                readOnly
+                type="email"
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
+                name="email"
+                id="email"
+                placeholder="Email"
+                defaultValue={saved.email ?? ""}
+              />
+              <label
+                htmlFor="email"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+              >Email
+              </label>
+            </div>
+
+            <div className="flex relative">
+              <span
+                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
+              >
+                <PhoneIcon />
+              </span>
+              <input
+                readOnly
+                type="tel"
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold"
+                name="phone"
+                id="phone"
+                placeholder="Phone"
+                defaultValue={saved.phone ?? ""}
+              />
+              <label
+                htmlFor="phone"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+              >Phone
+              </label>
+            </div>
+
+            <div className="flex relative">
+              <span
+                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
+              >
+                <CalenderBox />
+              </span>
+              <input
+                readOnly
+                type="date"
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none"
+                name="started_at"
+                id="started_at"
+                placeholder="Start At"
+                defaultValue={saved.started_at ?? ""}
+              />
+              <label
+                htmlFor="started_at"
+                className="absolute pointer-events-none text-black inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-8 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+              >Start At
+              </label>
+            </div>
+          </div>
+        </div>
+
 
         <div
           className="flex flex-col bg-white border border-gray-200 rounded-2xl p-4"
@@ -271,7 +281,6 @@ function Form({ data, tierId }: Props) {
             name="accordion"
             id="Shipping-address"
             className="peer hidden"
-            defaultChecked
           /><label
             htmlFor="Shipping-address"
             className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
@@ -343,6 +352,7 @@ function Form({ data, tierId }: Props) {
                 <OfficerBuildingIcon />
               </span>
               <textarea
+                readOnly
                 className="pl-12 w-full pt-7 pr-4 border border-light3 focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-6 font-semibold"
                 name="address"
                 id="address"
@@ -364,7 +374,8 @@ function Form({ data, tierId }: Props) {
                 <MapIcon />
               </span>
               <input
-                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none"
+                readOnly
+                className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color-gray-700 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none"
                 name="post_code"
                 id="post_code"
                 defaultValue={savedShipping.post_code || ""}
@@ -382,6 +393,7 @@ function Form({ data, tierId }: Props) {
               ><Notes />
               </span>
               <textarea
+                readOnly
                 className="pl-12 w-full pt-7 pr-4 border border-light3 focus:outline-none focus:border-blue-600 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-6 font-semibold"
                 name="notes"
                 id="notes"
@@ -407,7 +419,6 @@ function Form({ data, tierId }: Props) {
             name="accordion"
             id="payment-details"
             className="peer hidden"
-            defaultChecked
           /><label
             htmlFor="payment-details"
             className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
@@ -490,6 +501,87 @@ function Form({ data, tierId }: Props) {
                 <span className="text-sm text-black">PPN 11%</span>
                 <span className="font-semibold">Rp {tax} </span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <section className="relative flex flex-col gap-y-5">
+          <h2 className="font-semibold">Send Payment to</h2>
+          <div
+            className="flex items-center gap-x-3 bg-white border border-gray1 p-4 rounded-2xl"
+          >
+            <BcaIcon />
+
+            <span className="flex flex-col">
+              <span className="flex gap-x-2">
+                <h3 className="font-semibold">{pkg.kitchen.name}</h3>
+                <span className="text-color3">
+                  <BadgeCheckmark />
+                </span>
+              </span>
+              <span className="text-sm text-gray2">8008129839</span>
+            </span>
+          </div>
+
+          <div
+            className="flex items-center gap-x-3 bg-white border border-gray1 p-4 rounded-2xl"
+          >
+            <MandiriIcon />
+
+            <span className="flex flex-col">
+              <span className="flex gap-x-2">
+                <h3 className="font-semibold">{pkg.kitchen.name}</h3>
+                <span className="text-color3">
+                  <BadgeCheckmark />
+                </span>
+              </span>
+              <span className="text-sm text-gray2">12379834983281</span>
+            </span>
+          </div>
+        </section>
+
+        <div
+          className="flex flex-col bg-white border border-gray1 rounded-2xl p-4"
+        >
+          <input
+            type="checkbox"
+            name="accordion"
+            id="proof"
+            className="peer hidden"
+            defaultChecked
+          /><label
+            htmlFor="proof"
+            className="flex justify-between items-center cursor-pointer [--state-rotate:0deg] peer-checked:[--state-rotate:180deg]"
+          >
+            <h6 className="text-xl font-bold">Upload Proof of Payment</h6>
+            <span
+              className="text-color2 flex items-center justify-center transition-all duration-300 [rotate:var(--state-rotate)] bg-white border rounded-full p-2"
+            >
+              <ArrowCircleDown />
+            </span>
+          </label>
+          <div
+            className="flex flex-col gap-y-5 max-h-0 overflow-hidden transition-all duration-300 h-full peer-checked:mt-5 peer-checked:max-h-screen"
+          >
+            <div className="flex relative">
+              <span
+                className="absolute left-0 bottom-2 top-3 aspect-square flex items-center justify-center text-color2"
+              >
+                <ReceiptIcon />
+              </span>
+              <input
+                accept="image/*"
+                type="file"
+                className="pl-12 w-full pt-8 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color2 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none file:hidden"
+                name="proof"
+                id="proof"
+                placeholder="Add an attachment"
+              />
+              <label
+                htmlFor="proof"
+                className="absolute pointer-events-none text-gray2 inset-0 flex items-center ml-12 peer-placeholder-shown:mb-0 mb-6 peer-placeholder-shown:text-base text-sm transition-all duration-300"
+              >Add an attachment
+              </label>
             </div>
           </div>
         </div>

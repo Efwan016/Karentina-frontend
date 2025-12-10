@@ -51,7 +51,7 @@ export async function generateMetadata(
     const pkg = cateringPackage.data;
 
     return {
-        title: `Shipping | ${pkg.name} — Package | ${previous.title ?? "App"}`,
+        title: `Payments | ${pkg.name} — Package | ${previous.title ?? "App"}`,
         description: pkg.about ?? `Details for ${pkg.name} catering package.`,
     };
 }

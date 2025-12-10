@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {Poppins} from "next/font/google";
 import "@/assets/css/index.css";
 import "@/libs/thousands";
+import Toaster from "@/components/Toaster";
 
 
 const poppins = Poppins({
@@ -12,8 +13,8 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Katerina",
-    default: "Katerina",
+    template: "%s | Adzani",
+    default: "Adzani",
   },
   description: "Clean Eats Catering Food Delivery",
 };
@@ -34,6 +35,8 @@ export default function RootLayout({
         </main>
         
         {modal}
+
+        <Toaster />
       </body>
     </html>
   );

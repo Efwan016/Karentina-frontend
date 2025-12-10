@@ -1,4 +1,19 @@
 "use server"
+interface File {
+  size: number;
+  type: string;
+  name:string;
+}
+
+export type TPayment = {
+  message: string;
+  field: string;
+  data? : {
+    slug: string;
+    phone: number;
+    booking_trx_id: string;
+  }
+}
 
 export type TSubmitInformationState = {
   message: string;
@@ -23,6 +38,7 @@ export type TSubmitShippingState = {
     notes: string;
     tierId: string;
     started_at: string;
+    catering_package_id?: string;
   };
 };
 
@@ -149,30 +165,30 @@ export async function submitShipping(
   const slug = formData.get("slug") as string | null;
   const started_at = formData.get("started_at") as string | null;
   const tierId = formData.get("catering_tier_id") as string | null;
-  
+
   if (!address) {
-      return { message: "Address is required", field: "address" };
+    return { message: "Address is required", field: "address" };
   }
 
   if (!post_code) {
-      return { message: "Post Code is required", field: "post_code" };
+    return { message: "Post Code is required", field: "post_code" };
   }
 
   if (!notes) {
-      return { message: "Notes is required", field: "notes" };
+    return { message: "Notes is required", field: "notes" };
   }
   if (!slug) {
-      return { message: "Slug is missing", field: "slug" };
+    return { message: "Slug is missing", field: "slug" };
   }
 
-  if (!tierId) { 
-      return { message: "Tier ID is required", field: "catering_tier_id" };
+  if (!tierId) {
+    return { message: "Tier ID is required", field: "catering_tier_id" };
   }
-  
-  if (!started_at) { 
-      return { message: "Start date is missing", field: "started_at" };
+
+  if (!started_at) {
+    return { message: "Start date is missing", field: "started_at" };
   }
-  
+
   return {
     message: "Next Step",
     field: "",
@@ -188,51 +204,54 @@ export async function submitShipping(
 
 }
 
-export async function submitDelivery(
-  prevState: TSubmitShippingState,
+export async function submitPayment(
+  prevState:TPayment, 
   formData: FormData
-): Promise<TSubmitShippingState> {
-
-  const address = formData.get("address") as string | null;
-  const post_code = formData.get("post_code") as string | null;
-  const notes = formData.get("notes") as string | null;
+): Promise<TPayment> {
   const slug = formData.get("slug") as string | null;
-  const started_at = formData.get("started_at") as string | null;
-  const tierId = formData.get("catering_tier_id") as string | null;
+  const phone = formData.get("phone") as number | null;
+  const proof = formData.get("proof") as File;
   
-  if (!address) {
-      return { message: "Address is required", field: "address" };
+  if (!slug) return { message: "Slug is missing", field: "slug" };
+  if (!phone) return { message: "Phone is required", field: "phone" };
+
+  if (proof.size === 0) {
+    return {
+      message: "Choose Receipt payment",
+      field: "proof",
+    };
   }
 
-  if (!post_code) {
-      return { message: "Post Code is required", field: "post_code" };
-  }
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_HOST_API}/api/booking-transaction`,
+      {
+        method: "POST",
+        body: formData
+      }
+    );
 
-  if (!notes) {
-      return { message: "Notes is required", field: "notes" };
-  }
-  if (!slug) {
-      return { message: "Slug is missing", field: "slug" };
-  }
+    if (!res.ok) {
+      throw new Error(`
+        Failed: ${res.statusText}
+        `);
+    }
 
-  if (!tierId) { 
-      return { message: "Tier ID is required", field: "catering_tier_id" };
+    const data = await res.json();
+    return {
+      message: "Next Step",
+      field: "",
+      data: {
+        slug: slug!,
+        phone: phone!,
+        booking_trx_id: data.data.booking_trx_id
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching Payment:", error);
+    return {
+      message: "Payment failed",
+      field: "toaster",
+    };
   }
-  
-  if (!started_at) { 
-      return { message: "Start date is missing", field: "started_at" };
-  }
-  
-  return {
-    message: "Next Step",
-    field: "",
-    data: {
-      slug: slug!,
-      address: address!,
-      post_code: post_code!,
-      notes: notes!,
-      tierId: tierId!,
-      started_at: started_at!,
-    },
-  };
 }
