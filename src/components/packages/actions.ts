@@ -1,4 +1,5 @@
 "use server"
+
 interface File {
   size: number;
   type: string;
@@ -253,5 +254,27 @@ export async function submitPayment(
       message: "Payment failed",
       field: "toaster",
     };
+  }
+}
+
+export async function checkBookingByTrxId(booking_trx_id: string, phone: string) {
+  try {
+    const formData = new FormData()
+    formData.append("booking_trx_id", booking_trx_id)
+    formData.append("phone", phone)
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_HOST_API}/api/check-booking`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+
+    return { data: [] };
   }
 }

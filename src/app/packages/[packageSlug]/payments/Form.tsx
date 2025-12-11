@@ -156,7 +156,7 @@ function Form({ data, tierId }: Props) {
       <input type="hidden" value={data.slug} name="slug" />
       <input type="hidden" value={data.id} name="catering_package_id" />
       <input type="hidden" value={tierId} name="catering_tier_id" />
-      <input type="hidden" value={saved?.started_at} name="started_at" />
+      <input type="hidden" value={saved?.started_at ?? ""} name="started_at" />
 
       <div className="flex flex-col gap-y-7 px-4">
 
