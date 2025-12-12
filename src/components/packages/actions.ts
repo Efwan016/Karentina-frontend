@@ -1,15 +1,16 @@
 "use server"
 
+
 interface File {
   size: number;
   type: string;
-  name:string;
+  name: string;
 }
 
 export type TPayment = {
   message: string;
   field: string;
-  data? : {
+  data?: {
     slug: string;
     phone: number;
     booking_trx_id: string;
@@ -206,13 +207,13 @@ export async function submitShipping(
 }
 
 export async function submitPayment(
-  prevState:TPayment, 
+  prevState: TPayment,
   formData: FormData
 ): Promise<TPayment> {
   const slug = formData.get("slug") as string | null;
   const phone = formData.get("phone") as number | null;
   const proof = formData.get("proof") as File;
-  
+
   if (!slug) return { message: "Slug is missing", field: "slug" };
   if (!phone) return { message: "Phone is required", field: "phone" };
 
@@ -277,4 +278,51 @@ export async function checkBookingByTrxId(booking_trx_id: string, phone: string)
 
     return { data: [] };
   }
+}
+
+export async function navigateOrderByTrxId(
+  prevState: TPayment,
+  formData: FormData
+) {
+  const phone = formData.get("phone")?.toString() ?? "";
+  const booking_trx_id = formData.get("booking_trx_id")?.toString() ?? "";
+
+  if (phone === "") {
+    return {
+      message: "Choose receipt payment",
+      field: "phone",
+    };
+  }
+
+  if (booking_trx_id === "") {
+    return {
+      message: "No Id Booking",
+      field: "booking_trx_id",
+    };
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_HOST_API}/api/check-booking`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    return {
+      message: "Id Booking or Phone Not Found",
+      field: "toaster",
+    };
+  }
+
+  return {
+    message: "redirect",
+    field: "",
+    data: {
+      slug: booking_trx_id,
+      phone: Number(phone),
+      booking_trx_id,
+    },
+  };
 }

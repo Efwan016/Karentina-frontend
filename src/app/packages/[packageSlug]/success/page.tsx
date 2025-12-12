@@ -103,7 +103,7 @@ async function BookingSuccessPage({ params, searchParams }: Request) {
 
                 <div className="flex flex-col gap-y-4">
                     <Link
-                        href="/bookings"
+                        href="/orders"
                         className="bg-amber-600 text-white rounded-full inline-flex items-center justify-center px-5 py-3 "
                     >
                         View My Booking
