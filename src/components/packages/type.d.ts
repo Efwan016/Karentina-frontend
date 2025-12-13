@@ -1,3 +1,4 @@
+
 import { TCategory } from "@/components/categories/type"
 import { TKitchen } from "@/components/kitchen/type";
 import { TCity } from "@/components/tiers/type";
@@ -8,7 +9,7 @@ import { TTestimonials } from "../testimonial/type";
 export type Tshow = "popular" | "newest"
 
 export type TPackage = {
-    "id": number,
+            "id": number,
             "name": string;
             "slug": string;
             "is_popular": 0 | 1,
@@ -56,5 +57,6 @@ export type TBookingDetails = {
         proof: string,
         cateringPackage: TPackage,
         cateringTier: TTiers,
+        category: TCategory,
            
 }

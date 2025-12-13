@@ -100,6 +100,7 @@ async function PackageTiersPage({ params }: Request) {
                             priority
                             unoptimized
                             className="object-cover object-center"
+                            
                         />
                     </figure>
                     <span className="flex flex-col gap-y-3">
