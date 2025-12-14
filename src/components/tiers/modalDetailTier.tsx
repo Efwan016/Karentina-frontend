@@ -14,7 +14,7 @@ async function ModalDetailTier({packageSlug, tierId}: Props) {
     const currentTier = cateringPackage.data.tiers.find((tier) => String(tier.id) === tierId);
     if (!currentTier) return "Tier not found.";
   return (
-    <ContentTier data={currentTier} packageSlug={packageSlug} isPriceShown/>
+    <ContentTier data={currentTier} packageSlug={packageSlug} isPriceShown ctaIsBack/>
   )
 }
 

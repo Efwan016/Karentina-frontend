@@ -17,7 +17,7 @@ export function RouterBack({
      children?: ReactNode,
       onClick?: () => void }) {
     const router= useRouter()
-    return <span className={['cursor-pointer', className ? className : "absolute inset-0 z-10"].join("")}
+    return <span className={['cursor-pointer', className ? className : "absolute inset-0 z-10"].join(" ")}
     onClick={() => {
         if (onClick) onClick();
         router.back();

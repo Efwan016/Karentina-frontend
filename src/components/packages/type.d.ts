@@ -40,7 +40,7 @@ export type TBookingDetails = {
         name: string,
         email: string,
         phone: string,
-        post_code: number,
+        post_code: string,
         city: string,
         address: string,
         notes: string,

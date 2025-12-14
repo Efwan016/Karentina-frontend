@@ -1,45 +1,45 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { TTier } from './type'
 import Clock from '@/assets/icons/clock'
 import BadgeCheckmark from '@/assets/icons/badge-checkmark'
 import People from '@/assets/icons/People'
 import Image from 'next/image'
-import Link from 'next/link'
+import { RouterBack } from '../Modal'
 
 
-export function ContentTier({ packageSlug, data, isPriceShown }: { packageSlug: string, data: TTier; isPriceShown: boolean }) {
+export function ContentTier({ cta, data, isPriceShown, ctaIsBack }: { packageSlug: string, data: TTier; isPriceShown: boolean; ctaIsBack?: boolean; cta?: ReactNode }) {
     return (
         <div
-            className="flex flex-col gap-y-3 h-full bg-white p-4 rounded-3xl relative shadow-[0px_12px_30px_0px_#07041517] border"
+            className="flex flex-col gap-y-4 h-full bg-white p-6 rounded-2xl relative shadow-lg border border-gray-900"
         >
-            <span className="flex gap-x-2 items-center">
-                <figure className="w-[100px] h-[120px] relative flex-none rounded-2xl overflow-hidden">
+            <div className="flex gap-x-4 items-center">
+                <figure className="w-24 h-24 relative flex-none rounded-xl overflow-hidden">
                     <Image
                         src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${data.photo}`}
                         alt={String(data.id)}
                         fill
                         priority
                         unoptimized
-                        className="object-cover object-center"
+                        className="object-cover"
                     />
                 </figure>
-                <span className="flex flex-col">
-                    <h2 className="font-semibold text-lg">{data.name}</h2>
-                    <span className="text-gray2 text-sm">{data.tagline}</span>
-                </span>
-            </span>
+                <div className="flex flex-col">
+                    <h2 className="font-bold text-xl text-gray-800">{data.name}</h2>
+                    <p className="text-gray-500 text-sm">{data.tagline}</p>
+                </div>
+            </div>
 
-            <hr />
+            <hr className="border-gray-100" />
 
-            <ul className="flex flex-col gap-y-4">
+            <ul className="flex flex-col gap-y-3">
                 {
                     data.benefits.map(benefit => {
                         return (
-                            <li className="flex gap-x-2" key={benefit.id}>
-                                <span className="text-green-600">
+                            <li className="flex items-center gap-x-3" key={benefit.id}>
+                                <span className="text-green-500">
                                     <BadgeCheckmark />
                                 </span>
-                                <span className="font-semibold">{benefit.name}</span>
+                                <span className="font-medium text-gray-700">{benefit.name}</span>
                             </li>
                         )
                     })
@@ -49,35 +49,37 @@ export function ContentTier({ packageSlug, data, isPriceShown }: { packageSlug: 
             {
                 isPriceShown && 
                 <>
-            <hr />
+            <hr className="border-gray-100" />
 
-            <span className="flex flex-col gap-y-2">
-                <span className="font-semibold text-xl">{data.price.thousands()}</span>
-                <span className="flex gap-x-3">
-                    <span className="flex gap-x-1">
-                        <span className="text-color2">
-                            <Clock />
-                        </span>
-                        <span className="text-gray2">{data.duration} Day{data.duration > 1 && "s" }</span>
+            <div className="flex flex-col gap-y-3">
+                <p className="font-bold text-2xl text-gray-900">Rp{data.price.thousands()}</p>
+                <div className="flex items-center gap-x-4">
+                    <span className="flex items-center gap-x-2 text-sm text-gray-500">
+                        <Clock  />
+                        <span>{data.duration} Day{data.duration > 1 && "s" }</span>
                     </span>
 
-                    <span className="flex gap-x-1">
-                        <span className="text-color2">
-                            <People />
-                        </span>
-                        <span className="text-gray2">{data.quantity.thousands()} People</span>
+                    <span className="flex items-center gap-x-2 text-sm text-gray-500">
+                        <People  />
+                        <span>{data.quantity.thousands()} People</span>
                     </span>
-                </span>
-            </span>
+                </div>
+            </div>
 
-            <hr />
+            <hr className="border-gray-100" />
                 </>
             }
 
-            <Link href={`/packages/${packageSlug}/informations?tier=${data.id}`}
-            className="flex py-3 relative border border-b-gray-200 rounded-full font-semibold justify-center hover:bg-amber-600 hover:text-white hover:border-transparent">
-                Choose package
-            </Link>
+            {
+                !!ctaIsBack && <RouterBack 
+                className="w-full py-3 mt-auto rounded-full font-semibold text-center border border-gray-600 text-gray-700 bg-gray-100 hover:bg-amber-500 hover:text-white transition-colors duration-300">
+                    Close
+                </RouterBack>
+            }
+
+           {
+            !ctaIsBack && cta
+           }
 
         </div>
 

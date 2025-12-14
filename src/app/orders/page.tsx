@@ -16,7 +16,7 @@ function BookingPage() {
             <section className="relative px-8 mt-28">
                 <figure className="w-full h-[219px] relative">
                     <Image
-                        src="./images/chef.png"
+                        src="images/chef.png"
                         alt="Chief Illustration"
                         fill
                         priority

@@ -19,6 +19,7 @@ import PhoneIcon from '@/assets/icons/Phone';
 import Mailbox from '@/assets/icons/Mailbox';
 import User from '@/assets/icons/User';
 import { formatDate } from 'date-fns';
+import { notFound } from 'next/navigation';
 import Truck from '@/assets/icons/Truck';
 
 type Request = {
@@ -35,27 +36,28 @@ async function OrdersFoundPage(props: Request) {
     const params = await props.params;
     const searchParams = await props.searchParams;
     const { phone } = await searchParams;
-    
+
     const bookingDetails: { data: TBookingDetails } = await checkBookingByTrxId(
         params.slug,
         phone
     );
 
-    console.log("🔥 bookingDetails:", bookingDetails);
-    console.log("🔥 cateringPackage:", bookingDetails?.data?.cateringPackage);
-   
+    if (!bookingDetails?.data) {
+        notFound();
+    }
+
     const isPaid = bookingDetails?.data?.is_paid;
 
     const pkg = bookingDetails?.data?.cateringPackage;
     const tier = bookingDetails?.data?.cateringTier
- 
+
 
     return (
         <>
             <ComposeHeader />
 
             <section className="relative px-4 -mt-20 z-10">
-                <div className="gap-y-5 flex-col bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 rounded-3xl">
+                <div className="flex flex-col gap-y-5 bg-white shadow-[0px_12px_30px_0px_#07041517] p-3 rounded-3xl">
                     {
                         isPaid === 0 &&
                         <span className="bg-amber-400 flex gap-x-3 p-3 rounded-2xl items-center">
@@ -89,44 +91,44 @@ async function OrdersFoundPage(props: Request) {
 
                         {/* Thumbnail */}
                         <figure className="w-[100px] h-[120px] relative flex-none rounded-2xl overflow-hidden">
-                            <Image
-                                src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${pkg.thumbnail}`}
-                                alt={pkg.name}
-                                fill
-                                unoptimized
-                                className="object-cover object-center"
-                            />
+                            {pkg?.thumbnail && (
+                                <Image
+                                    src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${pkg.thumbnail}`}
+                                    alt={pkg.name ?? 'Package thumbnail'}
+                                    fill
+                                    unoptimized
+                                    priority
+                                    className="object-cover object-center"
+                                />
+                            )}
                         </figure>
 
                         {/* Basic info */}
                         <span className="flex flex-col gap-y-3">
-                            <span className="font-semibold">{pkg.name}</span>
+                            <span className="font-semibold">{pkg?.name ?? 'package unavailable'}</span>
 
                             <span className="flex gap-x-1">
                                 <span className="text-color2"><Notes /></span>
-                                <span className="text-gray2">{bookingDetails.data.category.name}</span>
+                                <span className="text-gray2">{bookingDetails.data?.category?.name ?? '-'}</span>
                             </span>
 
                             <span className="flex gap-x-1">
                                 <span className="text-color2"><People /></span>
-                                <span className="text-gray2">
-                                    {bookingDetails.data.cateringTier?.quantity || 0} People
-                                </span>
+                                <span className="text-gray2">{tier?.quantity ?? 0} People</span>
                             </span>
                         </span>
                     </div>
 
                     {/* Tier */}
-                    <div className="">
+                    <div>
                         <h2 className="font-semibold mb-3">Tier Package</h2>
 
                         <div className="flex flex-col gap-y-3 h-full p-4 rounded-3xl relative border-2 border-dashed">
                             <span className="flex gap-x-2 items-center">
-
                                 <figure className="w-[100px] h-[120px] rounded-2xl overflow-hidden relative">
                                     <Image
-                                        src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${bookingDetails.data.cateringTier.photo}`}
-                                        alt={String(bookingDetails.data.cateringTier.name)}
+                                        src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${tier?.photo}`}
+                                        alt={String(tier?.name ?? 'Tier Image')}
                                         fill
                                         priority
                                         unoptimized
@@ -134,20 +136,19 @@ async function OrdersFoundPage(props: Request) {
                                     />
                                 </figure>
 
-                                <h3 className="font-semibold text-lg">{bookingDetails.data.cateringTier.name}</h3>
+                                <h3 className="font-semibold text-lg">{tier?.name ?? 'Nama Tier'}</h3>
 
                                 <OpenModal
                                     className='bg-gray-300 px-3 font-semibold text-sm py-1 flex rounded-full'
                                     modal="tier"
                                     queries={{
-                                        packageSlug: bookingDetails.data.cateringPackage?.slug,
-                                        tierId: bookingDetails.data.cateringTier.tierId
+                                        packageSlug: pkg?.slug,
+                                        tierId: tier?.id
                                     }}
                                 >
                                     Details
                                 </OpenModal>
-
-                            </span>
+                                    </span>
                         </div>
                     </div>
 
@@ -191,7 +192,7 @@ async function OrdersFoundPage(props: Request) {
                                 name="name"
                                 id="name"
                                 placeholder="Full Name"
-                                defaultValue={bookingDetails.data.name ?? ""}
+                                defaultValue={bookingDetails.data?.name ?? ""}
                             />
                             <label
                                 htmlFor="fullname"
@@ -213,7 +214,7 @@ async function OrdersFoundPage(props: Request) {
                                 name="email"
                                 id="email"
                                 placeholder="Email"
-                                defaultValue={bookingDetails.data.email ?? ""}
+                                defaultValue={bookingDetails.data?.email ?? ""}
                             />
                             <label
                                 htmlFor="email"
@@ -235,7 +236,7 @@ async function OrdersFoundPage(props: Request) {
                                 name="phone"
                                 id="phone"
                                 placeholder="Phone"
-                                defaultValue={bookingDetails.data.phone ?? ""}
+                                defaultValue={bookingDetails.data?.phone ?? ""}
                             />
                             <label
                                 htmlFor="phone"
@@ -257,7 +258,7 @@ async function OrdersFoundPage(props: Request) {
                                 name="started_at"
                                 id="started_at"
                                 placeholder="Start At"
-                                defaultValue={bookingDetails.data.started_at ?? ""}
+                                 defaultValue={bookingDetails.data?.started_at?.substring(0, 10) ?? ""}
                             />
                             <label
                                 htmlFor="started_at"
@@ -302,11 +303,9 @@ async function OrdersFoundPage(props: Request) {
                             >
                                 <span className="text-sm text-gray2">Started At</span>
                                 <span className="font-semibold">
-                                    {formatDate
-                                        (bookingDetails.data.started_at ? new Date
-                                            (bookingDetails.data.started_at) : new Date(),
-                                            'dd MMMM yyyy'
-                                        )}
+                                    {bookingDetails.data?.started_at
+                                        ? formatDate(new Date(bookingDetails.data.started_at), 'dd MMMM yyyy')
+                                        : '-'}
                                 </span>
                             </div>
                         </div>
@@ -336,7 +335,7 @@ async function OrdersFoundPage(props: Request) {
                             >
                                 <span className="text-sm text-gray2">City</span>
                                 <span className="font-semibold">
-                                    {bookingDetails.data.cateringPackage.city.name}
+                                    {pkg?.city?.name ?? '-'}
                                 </span>
                             </div>
                         </div>
@@ -354,7 +353,7 @@ async function OrdersFoundPage(props: Request) {
                                 id="address"
                                 rows={3}
                                 placeholder="Address"
-                                defaultValue={bookingDetails.data.address || ""}
+                                defaultValue={bookingDetails.data?.address ?? ''}
                             ></textarea>
                             <label
                                 htmlFor="address"
@@ -374,7 +373,7 @@ async function OrdersFoundPage(props: Request) {
                                 className="pl-12 w-full pt-4 pr-4 border border-light3 h-[69px] focus:outline-none focus:border-color-gray-700 rounded-2xl peer placeholder:opacity-0 placeholder-shown:pt-0 font-semibold appearance-none"
                                 name="post_code"
                                 id="post_code"
-                                defaultValue={bookingDetails.data.post_code || ""}
+                                defaultValue={bookingDetails.data?.post_code ?? ''}
                             />
                             <label
                                 htmlFor="post_code"
@@ -395,7 +394,7 @@ async function OrdersFoundPage(props: Request) {
                                 id="notes"
                                 rows={3}
                                 placeholder="Notes"
-                                defaultValue={bookingDetails.data.notes || ""}
+                                defaultValue={bookingDetails.data?.notes ?? ''}
                             />
                             <label
                                 htmlFor="notes"
@@ -439,7 +438,7 @@ async function OrdersFoundPage(props: Request) {
                                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
                             >
                                 <span className="text-sm text-black">Package Catering</span>
-                                <span className="font-semibold">Rp {(bookingDetails.data.cateringTier.price || 0)}</span>
+                                <span className="font-semibold">Rp {tier?.price?.toLocaleString() ?? 0}</span>
                             </div>
                         </div>
 
@@ -453,7 +452,7 @@ async function OrdersFoundPage(props: Request) {
                                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
                             >
                                 <span className="text-sm text-black">Duration</span>
-                                <span className="font-semibold">{`${bookingDetails.data.cateringTier.duration} day${(bookingDetails.data.cateringTier.duration || 0) > 1 ? "s" : ""}`}Regular</span>
+                                <span className="font-semibold">{`${tier?.duration ?? 0} day${(tier?.duration ?? 0) > 1 ? 's' : ''}`} Regular</span>
                             </div>
                         </div>
 
@@ -467,7 +466,7 @@ async function OrdersFoundPage(props: Request) {
                                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
                             >
                                 <span className="text-sm text-black">Quantity</span>
-                                <span className="font-semibold">{(bookingDetails.data.cateringTier.quantity || 0)} People</span>
+                                <span className="font-semibold">{tier?.quantity ?? 0} People</span>
                             </div>
                         </div>
 
@@ -495,7 +494,7 @@ async function OrdersFoundPage(props: Request) {
                                 className="pl-12 flex flex-col w-full justify-center pr-4 h-[69px] rounded-2xl bg-gray-300"
                             >
                                 <span className="text-sm text-black">PPN 11%</span>
-                                <span className="font-semibold">Rp {bookingDetails.data.total_tax_amount} </span>
+                                <span className="font-semibold">Rp {bookingDetails.data?.total_tax_amount?.toLocaleString() ?? 0} </span>
                             </div>
                         </div>
                     </div>
@@ -526,10 +525,11 @@ async function OrdersFoundPage(props: Request) {
                     >
                         <span className='relative w-[390] aspect-video rounded-2xl overflow-hidden'>
                             <Image
-                                src={`${process.env.NEXT_PUBLIC_HOST_API}/${bookingDetails.data.proof}`}
-                                alt={`${bookingDetails.data.name} Proof payment`}
+                                src={`${process.env.NEXT_PUBLIC_HOST_API}/storage/${bookingDetails.data?.proof}`}
+                                alt={`${bookingDetails.data?.name ?? 'Customer'}'s Proof of payment`}
                                 fill
                                 unoptimized
+                                priority
                                 className="object-cover object-center"
                             />
                         </span>
@@ -540,7 +540,7 @@ async function OrdersFoundPage(props: Request) {
 
                     <a
                         href=''
-                        className="bg-amber-600 rounded-full flex border border-black items-center justify-center text-white px-5 cursor-pointer hover:bg-amber-500 transition-colors"
+                        className="bg-amber-600 text-white rounded-full flex items-center justify-center px-5 w-full py-3"
                     >
                         Contact Customer Service
                     </a>

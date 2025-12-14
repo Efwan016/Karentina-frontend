@@ -12,7 +12,7 @@ export type TPayment = {
   field: string;
   data?: {
     slug: string;
-    phone: number;
+    phone: string;
     booking_trx_id: string;
   }
 }
@@ -211,7 +211,7 @@ export async function submitPayment(
   formData: FormData
 ): Promise<TPayment> {
   const slug = formData.get("slug") as string | null;
-  const phone = formData.get("phone") as number | null;
+  const phone = formData.get("phone") as string | null;
   const proof = formData.get("proof") as File;
 
   if (!slug) return { message: "Slug is missing", field: "slug" };
@@ -321,7 +321,7 @@ export async function navigateOrderByTrxId(
     field: "",
     data: {
       slug: booking_trx_id,
-      phone: Number(phone),
+      phone: String(phone),
       booking_trx_id,
     },
   };

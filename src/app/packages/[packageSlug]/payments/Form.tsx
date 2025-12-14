@@ -38,7 +38,7 @@ export type Props = {
 type TCheckoutPaymentItem = NonNullable<TPayment["data"]> & {
   name: string;
   email: string;
-  phone: number;
+  phone: string;
   started_at?: string;
   price?: number;
   duration?: number;

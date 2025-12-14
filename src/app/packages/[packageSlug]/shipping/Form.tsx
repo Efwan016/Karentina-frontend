@@ -94,7 +94,7 @@ const [checkout, setCheckout] = useState<TCheckoutStore>(getInitialCheckoutState
   const grandTotal = (currentTier?.price || 0) + tax;
 
   const [state, formAction] = useActionState(submitShipping, initialState)
-  const savedShipping = saved?.shipping || saved || { address: "", post_code: "", notes: "" };
+  const savedShipping = saved?.shipping || { address: "", post_code: "", notes: "" };
 
 
 useEffect(() => {
