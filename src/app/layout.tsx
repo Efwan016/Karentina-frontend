@@ -3,6 +3,7 @@ import {Poppins} from "next/font/google";
 import "@/assets/css/index.css";
 import "@/libs/thousands";
 import Toaster from "@/components/Toaster";
+import NProgressBar from "@/components/NProgressBar";
 
 
 const poppins = Poppins({
@@ -29,6 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.className}>
       <body>
+
+        <NProgressBar >
+
         <main className="container max-w-sm mx-auto flex flex-col gap-y-5 relative pt-10 pb-16">
 
         {children}
@@ -37,6 +41,7 @@ export default function RootLayout({
         {modal}
 
         <Toaster />
+        </NProgressBar>
       </body>
     </html>
   );

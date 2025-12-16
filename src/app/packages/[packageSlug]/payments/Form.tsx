@@ -27,6 +27,7 @@ import BadgeCheckmark from "@/assets/icons/badge-checkmark";
 import MandiriIcon from "@/assets/icons/MandiriIcon";
 import ReceiptIcon from "@/assets/icons/ReceiptIcon";
 import { toast } from "react-toastify";
+import SubmitButton from "@/components/SubmitButton";
 
 
 export type Props = {
@@ -594,12 +595,7 @@ function Form({ data, tierId }: Props) {
               <span className="text-black text-sm">Grand Total</span>
               <span className="font-semibold text-xl">Rp {grandTotal} </span>
             </span>
-            <button
-              type="submit"
-              className="bg-amber-600 rounded-full flex border border-black items-center justify-center text-white px-5 cursor-pointer hover:bg-amber-500 transition-colors"
-            >
-              Continue
-            </button>
+            <SubmitButton>Continue</SubmitButton>
           </div>
         </div>
       </div>

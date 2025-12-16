@@ -11,16 +11,17 @@ import BottomBar from "@/components/bottomBar";
 type SlideItemProps = {
   image: string;
   alt: string;
+  priority?: boolean;
 };
 
-const SlideItem = ({ image, alt }: SlideItemProps) => (
+const SlideItem = ({ image, alt, priority = false }: SlideItemProps) => (
   <div className="h-full rounded-3xl overflow-hidden relative border">
     <figure className="absolute w-full h-full">
       <Image
         src={image}
         alt={alt}
         fill
-        priority
+        priority={priority}
         sizes="(max-width: 768px) 100vw, 50vw"
         className="object-cover object-center"
       />
@@ -97,7 +98,7 @@ export default function Home() {
           swipeSlideClassName="!max-w-xs"
         >
           {slides.map((s, i) => (
-            <SlideItem key={i} image={s.image} alt={s.alt} />
+            <SlideItem key={i} image={s.image} alt={s.alt} priority={i === 0} />
           ))}
         </Slider>
       </section>
